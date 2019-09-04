@@ -1,0 +1,21 @@
+#
+
+
+# Python
+/*.egg
+/.eggs/
+/.pytest_cache/
+/.tox/
+/build/
+/dist/
+*.dist-info/
+*.egg-info/
+__pycache__/
+*.pyc
+
+
+# vi
+.*.swp
+
+
+# EOF
