@@ -6,6 +6,20 @@
 .. sectnum::
 
 
+Introduction
+============
+
+Display installed Python distributions as a tree of dependencies.
+
+
+Usage
+=====
+
+.. code::
+
+    deptree
+
+
 Repositories
 ============
 
