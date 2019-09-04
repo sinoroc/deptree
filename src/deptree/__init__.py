@@ -5,8 +5,6 @@
 """
 
 
-import pkg_resources
-
 from . import _meta
 from . import cli
 
