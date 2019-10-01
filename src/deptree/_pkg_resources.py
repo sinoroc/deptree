@@ -1,14 +1,11 @@
-#!/usr/bin/env python3
+#
 
 
-""" deptree TODO
+""" Implementation based on 'pkg_resources' from 'setuptools'
 """
 
 
 import pkg_resources
-
-
-__version__ = '0.0.0'
 
 
 def _display_req(req, distributions, depth, seen):
