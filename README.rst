@@ -9,7 +9,7 @@
 Introduction
 ============
 
-Display installed Python distributions as a tree of dependencies.
+Display installed Python projects as a tree of dependencies.
 
 
 Usage
@@ -17,7 +17,14 @@ Usage
 
 .. code::
 
-    deptree
+    usage: deptree [-h] [--version] [project [project ...]]
+
+    positional arguments:
+      project
+
+    optional arguments:
+      -h, --help  show this help message and exit
+      --version   show program's version number and exit
 
 
 Repositories

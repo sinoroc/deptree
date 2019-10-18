@@ -44,23 +44,52 @@ def _display_dist(dist_dict, distributions):
     _display_requirements(dist, distributions, 1, seen)
 
 
-def _display(distributions):
+def _display_selected(distributions, selected_projects):
+    for project in selected_projects:
+        project_key = project['key']
+        if project_key in distributions:
+            _display_dist(distributions[project_key], distributions)
+
+
+def _display_all(distributions):
     for dist_dict in distributions.values():
         if not dist_dict.get('is_requirement', False):
             _display_dist(dist_dict, distributions)
 
 
-def main():
-    """ Main function """
+def _parse_user_selection(user_selection):
+    selected_projects = []
+    for project in user_selection:
+        requirement = pkg_resources.Requirement.parse(project)
+        project = {
+            'name': requirement.project_name,
+            'key': requirement.key,
+            'extras': requirement.extras,
+        }
+        selected_projects.append(project)
+    return selected_projects
+
+
+def _list_distributions():
     distributions = {}
     working_set = pkg_resources.working_set
-    for dist in working_set:  # pylint: disable=not-an-iterable
-        dist_dict = distributions.setdefault(dist.key, {})
-        dist_dict['dist'] = dist
-        for req in dist.requires():
-            req_dict = distributions.setdefault(req.key, {})
-            req_dict['is_requirement'] = True
-    _display(distributions)
+    for distribution in working_set:  # pylint: disable=not-an-iterable
+        distribution_dict = distributions.setdefault(distribution.key, {})
+        distribution_dict['dist'] = distribution
+        for requirement in distribution.requires():
+            requirement_dict = distributions.setdefault(requirement.key, {})
+            requirement_dict['is_requirement'] = True
+    return distributions
+
+
+def main(user_selection):
+    """ Main function """
+    distributions = _list_distributions()
+    if user_selection:
+        selected_projects = _parse_user_selection(user_selection)
+        _display_selected(distributions, selected_projects)
+    else:
+        _display_all(distributions)
 
 
 # EOF
