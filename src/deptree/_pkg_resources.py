@@ -1,69 +1,110 @@
-#!/usr/bin/env python3
+#
 
 
-""" deptree TODO
+""" Implementation based on 'pkg_resources' from 'setuptools'
 """
 
 
 import pkg_resources
 
 
-__version__ = '0.0.0'
+INDENTATION = 2
 
 
-def _display_req(req, distributions, depth, seen):
-    if 'dist' in distributions[req.key]:
-        print(
-            '.' * depth * 4,
-            req.project_name,
-            distributions[req.key]['dist'].version,
-            req.specs,
-            req.marker,
-        )
-        dist = distributions[req.key]['dist']
-        _display_requirements(dist, distributions, depth + 1, seen)
+def _display_conflict(distribution, requirement, depth):
+    print(
+        "{}{}=={}  # CONFLICT {}".format(
+            ' ' * INDENTATION * depth,
+            distribution.project_name,
+            distribution.version,
+            requirement,
+        ),
+    )
+
+
+def _display_cyclic(distribution, requirement, depth):
+    print(
+        "{}{}=={}  # CYCLIC {}".format(
+            ' ' * INDENTATION * depth,
+            distribution.project_name,
+            distribution.version,
+            requirement,
+        ),
+    )
+
+
+def _display_good(distribution, requirement, depth):
+    print(
+        "{}{}=={}  # {}".format(
+            ' ' * INDENTATION * depth,
+            distribution.project_name,
+            distribution.version,
+            requirement,
+        ),
+    )
+
+
+def _display_missing(requirement, depth):
+    print(
+        "{}{}  # MISSING {}".format(
+            ' ' * INDENTATION * depth,
+            requirement.project_name,
+            requirement,
+        ),
+    )
+
+
+def _display(requirement, depth, seen):
+    try:
+        distribution = pkg_resources.get_distribution(requirement)
+    except pkg_resources.VersionConflict:
+        distribution = pkg_resources.get_distribution(requirement.key)
+        _display_conflict(distribution, requirement, depth)
+    except pkg_resources.DistributionNotFound:
+        _display_missing(requirement, depth)
+    except IndexError:
+        # https://github.com/pypa/setuptools/issues/1677
+        _display_missing(requirement, depth)
     else:
-        print(
-            '.' * depth * 4,
-            req.project_name,
-            'NOT INSTALLED!',
-            req.specs,
-            req.marker,
-        )
-
-
-def _display_requirements(dist, distributions, depth, seen):
-    for req in dist.requires():
-        if req.key in seen:
-            print("CYCLIC", seen, req.key)
+        if distribution.key in seen:
+            _display_cyclic(distribution, requirement, depth)
         else:
-            _display_req(req, distributions, depth, seen + [req.key])
+            _display_good(distribution, requirement, depth)
+            try:
+                dependencies = distribution.requires(extras=requirement.extras)
+            except pkg_resources.UnknownExtra as exception:
+                print(exception)
+            else:
+                for dependency_requirement in dependencies:
+                    _display(
+                        dependency_requirement,
+                        depth + 1,
+                        seen + [requirement.key],
+                    )
 
 
-def _display_dist(dist_dict, distributions):
-    dist = dist_dict['dist']
-    seen = [dist.key]
-    print(dist.project_name, dist.version)
-    _display_requirements(dist, distributions, 1, seen)
-
-
-def _display(distributions):
-    for dist_dict in distributions.values():
-        if not dist_dict.get('is_requirement', False):
-            _display_dist(dist_dict, distributions)
-
-
-def main():
-    """ Main function """
-    distributions = {}
+def _get_top_level():
     working_set = pkg_resources.working_set
-    for dist in working_set:  # pylint: disable=not-an-iterable
-        dist_dict = distributions.setdefault(dist.key, {})
-        dist_dict['dist'] = dist
-        for req in dist.requires():
-            req_dict = distributions.setdefault(req.key, {})
-            req_dict['is_requirement'] = True
-    _display(distributions)
+    distributions = {}
+    for distribution in working_set:  # pylint: disable=not-an-iterable
+        distributions.setdefault(distribution.key, True)  # if not exist yet
+        for dependency in distribution.requires():
+            distributions[dependency.key] = False
+    top_level = [
+        key
+        for (key, is_top_level) in distributions.items()
+        if is_top_level
+    ]
+    return top_level
+
+
+def main(selection):
+    """ Main function """
+    if not selection:
+        selection = _get_top_level()
+    for item in selection:
+        requirement = pkg_resources.Requirement.parse(item)
+        _display(requirement, 0, [])
 
 
 # EOF
