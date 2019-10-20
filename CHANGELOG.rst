@@ -5,6 +5,9 @@
 0.0.2.dev0
 ==========
 
+* Add handling of extras
+* Change output format
+
 
 0.0.1
 =====

@@ -8,88 +8,103 @@
 import pkg_resources
 
 
-def _display_req(req, distributions, depth, seen):
-    if 'dist' in distributions[req.key]:
-        print(
-            '.' * depth * 4,
-            req.project_name,
-            distributions[req.key]['dist'].version,
-            req.specs,
-            req.marker,
-        )
-        dist = distributions[req.key]['dist']
-        _display_requirements(dist, distributions, depth + 1, seen)
+INDENTATION = 2
+
+
+def _display_conflict(distribution, requirement, depth):
+    print(
+        "{}{}=={}  # CONFLICT {}".format(
+            ' ' * INDENTATION * depth,
+            distribution.project_name,
+            distribution.version,
+            requirement,
+        ),
+    )
+
+
+def _display_cyclic(distribution, requirement, depth):
+    print(
+        "{}{}=={}  # CYCLIC {}".format(
+            ' ' * INDENTATION * depth,
+            distribution.project_name,
+            distribution.version,
+            requirement,
+        ),
+    )
+
+
+def _display_good(distribution, requirement, depth):
+    print(
+        "{}{}=={}  # {}".format(
+            ' ' * INDENTATION * depth,
+            distribution.project_name,
+            distribution.version,
+            requirement,
+        ),
+    )
+
+
+def _display_missing(requirement, depth):
+    print(
+        "{}{}  # MISSING {}".format(
+            ' ' * INDENTATION * depth,
+            requirement.project_name,
+            requirement,
+        ),
+    )
+
+
+def _display(requirement, depth, seen):
+    try:
+        distribution = pkg_resources.get_distribution(requirement)
+    except pkg_resources.VersionConflict:
+        distribution = pkg_resources.get_distribution(requirement.key)
+        _display_conflict(distribution, requirement, depth)
+    except pkg_resources.DistributionNotFound:
+        _display_missing(requirement, depth)
+    except IndexError:
+        # https://github.com/pypa/setuptools/issues/1677
+        _display_missing(requirement, depth)
     else:
-        print(
-            '.' * depth * 4,
-            req.project_name,
-            'NOT INSTALLED!',
-            req.specs,
-            req.marker,
-        )
-
-
-def _display_requirements(dist, distributions, depth, seen):
-    for req in dist.requires():
-        if req.key in seen:
-            print("CYCLIC", seen, req.key)
+        if distribution.key in seen:
+            _display_cyclic(distribution, requirement, depth)
         else:
-            _display_req(req, distributions, depth, seen + [req.key])
+            _display_good(distribution, requirement, depth)
+            try:
+                dependencies = distribution.requires(extras=requirement.extras)
+            except pkg_resources.UnknownExtra as exception:
+                print(exception)
+            else:
+                for dependency_requirement in dependencies:
+                    _display(
+                        dependency_requirement,
+                        depth + 1,
+                        seen + [requirement.key],
+                    )
 
 
-def _display_dist(dist_dict, distributions):
-    dist = dist_dict['dist']
-    seen = [dist.key]
-    print(dist.project_name, dist.version)
-    _display_requirements(dist, distributions, 1, seen)
-
-
-def _display_selected(distributions, selected_projects):
-    for project in selected_projects:
-        project_key = project['key']
-        if project_key in distributions:
-            _display_dist(distributions[project_key], distributions)
-
-
-def _display_all(distributions):
-    for dist_dict in distributions.values():
-        if not dist_dict.get('is_requirement', False):
-            _display_dist(dist_dict, distributions)
-
-
-def _parse_user_selection(user_selection):
-    selected_projects = []
-    for project in user_selection:
-        requirement = pkg_resources.Requirement.parse(project)
-        project = {
-            'name': requirement.project_name,
-            'key': requirement.key,
-            'extras': requirement.extras,
-        }
-        selected_projects.append(project)
-    return selected_projects
-
-
-def _list_distributions():
-    distributions = {}
+def _get_top_level():
     working_set = pkg_resources.working_set
+    distributions = {}
     for distribution in working_set:  # pylint: disable=not-an-iterable
-        distribution_dict = distributions.setdefault(distribution.key, {})
-        distribution_dict['dist'] = distribution
-        for requirement in distribution.requires():
-            requirement_dict = distributions.setdefault(requirement.key, {})
-            requirement_dict['is_requirement'] = True
-    return distributions
+        distributions.setdefault(distribution.key, True)  # if not exist yet
+        for dependency in distribution.requires():
+            distributions[dependency.key] = False
+    top_level = [
+        key
+        for (key, is_top_level) in distributions.items()
+        if is_top_level
+    ]
+    return top_level
 
 
-def main(user_selection):
+def main(selection):
     """ Main function """
-    distributions = _list_distributions()
-    if user_selection:
-        selected_projects = _parse_user_selection(user_selection)
-        _display_selected(distributions, selected_projects)
-    else:
-        _display_all(distributions)
+    if not selection:
+        selection = _get_top_level()
+    for item in selection:
+        requirement = pkg_resources.Requirement.parse(item)
+        _display(requirement, 0, [])
 
 
 # EOF
