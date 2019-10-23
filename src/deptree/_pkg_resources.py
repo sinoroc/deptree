@@ -54,7 +54,17 @@ def _display_missing(requirement, depth):
     )
 
 
-def _display(requirement, depth, seen):
+def _display_missing_reverse(requirement, depth):
+    print(
+        "{}{}  # MISSING".format(
+            ' ' * INDENTATION * depth,
+            requirement.project_name,
+        ),
+    )
+
+
+def _display(requirement, chain):
+    depth = len(chain)
     try:
         distribution = pkg_resources.get_distribution(requirement)
     except pkg_resources.VersionConflict:
@@ -66,7 +76,7 @@ def _display(requirement, depth, seen):
         # https://github.com/pypa/setuptools/issues/1677
         _display_missing(requirement, depth)
     else:
-        if distribution.key in seen:
+        if distribution.key in chain:
             _display_cyclic(distribution, requirement, depth)
         else:
             _display_good(distribution, requirement, depth)
@@ -78,33 +88,98 @@ def _display(requirement, depth, seen):
                 for dependency_requirement in dependencies:
                     _display(
                         dependency_requirement,
-                        depth + 1,
-                        seen + [requirement.key],
+                        chain + [distribution.key],
                     )
 
 
-def _get_top_level():
+def _display_reverse(distributions, project_req, dependency_req, chain):
+    depth = len(chain)
+    try:
+        project_dist = pkg_resources.get_distribution(project_req)
+    except pkg_resources.DistributionNotFound:
+        _display_missing_reverse(project_req, depth)
+    else:
+        if project_dist.key in chain:
+            _display_cyclic(project_dist, dependency_req, depth)
+        else:
+            if dependency_req:
+                try:
+                    pkg_resources.get_distribution(dependency_req)
+                except pkg_resources.VersionConflict:
+                    _display_conflict(project_dist, dependency_req, depth)
+                else:
+                    _display_good(project_dist, dependency_req, depth)
+            else:
+                _display_good(project_dist, '', depth)
+            dependents = distributions[project_dist.key]['dependents']
+            for (dependent_key, dependent_req) in dependents.items():
+                _display_reverse(
+                    distributions,
+                    dependent_key,
+                    dependent_req,
+                    chain + [project_dist.key],
+                )
+
+
+def _discover_distributions():
     working_set = pkg_resources.working_set
     distributions = {}
     for distribution in working_set:  # pylint: disable=not-an-iterable
-        distributions.setdefault(distribution.key, True)  # if not exist yet
-        for dependency in distribution.requires():
-            distributions[dependency.key] = False
-    top_level = [
+        key = distribution.key
+        if key not in distributions:
+            distributions[key] = {
+                'dependencies': {},
+                'dependents': {},
+            }
+        distributions[key]['installed'] = True
+        for requirement in distribution.requires(extras=distribution.extras):
+            distributions[key]['dependencies'][requirement.key] = requirement
+            if requirement.key not in distributions:
+                distributions[requirement.key] = {
+                    'dependencies': {},
+                    'dependents': {},
+                    'installed': False,
+                }
+            distributions[requirement.key]['dependents'][key] = requirement
+    return distributions
+
+
+def _select_top_level(distributions):
+    selection = [
         key
-        for (key, is_top_level) in distributions.items()
-        if is_top_level
+        for (key, info)
+        in distributions.items()
+        if not info['dependents']
     ]
-    return top_level
+    return selection
 
 
-def main(selection):
+def _select_bottom_level(distributions):
+    selection = [
+        key
+        for (key, info)
+        in distributions.items()
+        if info['installed'] and not info['dependencies']
+    ]
+    return selection
+
+
+def main(selection, reverse):
     """ Main function """
+    distributions = None
+    if not selection or reverse:
+        distributions = _discover_distributions()
     if not selection:
-        selection = _get_top_level()
+        if reverse:
+            selection = _select_bottom_level(distributions)
+        else:
+            selection = _select_top_level(distributions)
     for item in selection:
         requirement = pkg_resources.Requirement.parse(item)
-        _display(requirement, 0, [])
+        if reverse:
+            _display_reverse(distributions, requirement, None, [])
+        else:
+            _display(requirement, [])
 
 
 # EOF

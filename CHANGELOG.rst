@@ -5,6 +5,8 @@
 0.0.3.dev0
 ==========
 
+* Add 'reverse' to show tree of dependent projects
+
 
 0.0.2
 =====
