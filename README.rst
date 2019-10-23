@@ -17,14 +17,15 @@ Usage
 
 .. code::
 
-    usage: deptree [-h] [--version] [project [project ...]]
+    usage: deptree [-h] [--version] [-r] [project [project ...]]
 
     positional arguments:
       project
 
     optional arguments:
-      -h, --help  show this help message and exit
-      --version   show program's version number and exit
+      -h, --help     show this help message and exit
+      --version      show program's version number and exit
+      -r, --reverse
 
 
 Repositories
