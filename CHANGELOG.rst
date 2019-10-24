@@ -5,6 +5,8 @@
 0.0.4.dev0
 ==========
 
+* Sort output alphabetically
+
 
 0.0.3
 =====

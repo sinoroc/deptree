@@ -63,7 +63,7 @@ def _display_missing_reverse(requirement, depth):
     )
 
 
-def _display(requirement, chain):
+def _display(distributions, requirement, chain):
     depth = len(chain)
     try:
         distribution = pkg_resources.get_distribution(requirement)
@@ -85,8 +85,16 @@ def _display(requirement, chain):
             except pkg_resources.UnknownExtra as exception:
                 print(exception)
             else:
-                for dependency_requirement in dependencies:
+                sorted_dependency_keys = sorted([
+                    dependency.key
+                    for dependency
+                    in dependencies
+                ])
+                all_deps = distributions[distribution.key]['dependencies']
+                for dependency_key in sorted_dependency_keys:
+                    dependency_requirement = all_deps[dependency_key]
                     _display(
+                        distributions,
                         dependency_requirement,
                         chain + [distribution.key],
                     )
@@ -112,7 +120,7 @@ def _display_reverse(distributions, project_req, dependency_req, chain):
             else:
                 _display_good(project_dist, '', depth)
             dependents = distributions[project_dist.key]['dependents']
-            for (dependent_key, dependent_req) in dependents.items():
+            for (dependent_key, dependent_req) in sorted(dependents.items()):
                 _display_reverse(
                     distributions,
                     dependent_key,
@@ -148,7 +156,7 @@ def _select_top_level(distributions):
     selection = [
         key
         for (key, info)
-        in distributions.items()
+        in sorted(distributions.items())
         if not info['dependents']
     ]
     return selection
@@ -158,7 +166,7 @@ def _select_bottom_level(distributions):
     selection = [
         key
         for (key, info)
-        in distributions.items()
+        in sorted(distributions.items())
         if info['installed'] and not info['dependencies']
     ]
     return selection
@@ -166,9 +174,7 @@ def _select_bottom_level(distributions):
 
 def main(selection, reverse):
     """ Main function """
-    distributions = None
-    if not selection or reverse:
-        distributions = _discover_distributions()
+    distributions = _discover_distributions()
     if not selection:
         if reverse:
             selection = _select_bottom_level(distributions)
@@ -179,7 +185,7 @@ def main(selection, reverse):
         if reverse:
             _display_reverse(distributions, requirement, None, [])
         else:
-            _display(requirement, [])
+            _display(distributions, requirement, [])
 
 
 # EOF
