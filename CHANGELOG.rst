@@ -2,8 +2,10 @@
 
 
 .. Keep the current version number on line number 5
-0.0.4.dev0
-==========
+0.0.4
+=====
+
+2019-10-24
 
 * Sort output alphabetically
 
