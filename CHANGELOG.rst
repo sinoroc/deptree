@@ -5,6 +5,8 @@
 0.0.5.dev0
 ==========
 
+* Rewrite implementation
+
 
 0.0.4
 =====
