@@ -44,6 +44,15 @@ Source code
 * https://github.com/sinoroc/deptree
 
 
+Details
+=======
+
+Similar projects
+----------------
+
+* `pipdeptree`_
+
+
 Hacking
 =======
 
@@ -91,6 +100,7 @@ Outside of a Python virtual environment run the following command::
 .. Links
 
 .. _`GNU Make`: https://www.gnu.org/software/make/
+.. _`pipdeptree`: https://pypi.org/project/pipdeptree/
 .. _`pytest`: https://pytest.org/
 .. _`tox`: https://tox.readthedocs.io/
 
