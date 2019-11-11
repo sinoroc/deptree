@@ -20,12 +20,12 @@ Usage
     usage: deptree [-h] [--version] [-r] [project [project ...]]
 
     positional arguments:
-      project
+      project        name of project whose dependencies (or dependents) to show
 
     optional arguments:
       -h, --help     show this help message and exit
       --version      show program's version number and exit
-      -r, --reverse
+      -r, --reverse  show dependent projects instead of dependencies
 
 
 Repositories
