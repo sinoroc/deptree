@@ -75,15 +75,19 @@ def _display_forward_one(project_req, chain):
             _display_conflict(distribution, project_req, depth)
         else:
             _display_good(distribution, project_req, depth)
-            dependency_reqs = sorted(
-                distribution.requires(extras=project_req.extras),
-                key=lambda req: req.key,
-            )
-            for dependency_req in dependency_reqs:
-                _display_forward_one(
-                    dependency_req,
-                    chain + [distribution.key],
+            try:
+                dependency_reqs = sorted(
+                    distribution.requires(extras=project_req.extras),
+                    key=lambda req: req.key,
                 )
+            except pkg_resources.UnknownExtra as unknown_extra_exception:
+                print(unknown_extra_exception)
+            else:
+                for dependency_req in dependency_reqs:
+                    _display_forward_one(
+                        dependency_req,
+                        chain + [distribution.key],
+                    )
 
 
 def _display_reverse(distributions, project_requirement):
