@@ -106,15 +106,16 @@ def _display_reverse_one(distributions, project_req, dependency_req, chain):
             _display_missing(project_req, depth)
         else:
             _display_good(distribution, dependency_req, depth)
-        dependents = distributions[project_key]['dependents']
-        for (dependent_key, next_dependency_req) in sorted(dependents.items()):
-            dependent_req = pkg_resources.Requirement.parse(dependent_key)
-            _display_reverse_one(
-                distributions,
-                dependent_req,
-                next_dependency_req,
-                chain + [project_key],
-            )
+        if project_key in distributions:
+            dependents = distributions[project_key]['dependents'].items()
+            for (dependent_key, next_dependency_req) in sorted(dependents):
+                dependent_req = pkg_resources.Requirement.parse(dependent_key)
+                _display_reverse_one(
+                    distributions,
+                    dependent_req,
+                    next_dependency_req,
+                    chain + [project_key],
+                )
 
 
 def _discover_distributions():

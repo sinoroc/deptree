@@ -5,6 +5,8 @@
 0.0.7.dev0
 ==========
 
+* Fix issue with unknown project in reverse
+
 
 0.0.6
 =====
