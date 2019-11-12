@@ -2,8 +2,13 @@
 
 
 .. Keep the current version number on line number 5
-0.0.6.dev0
-==========
+0.0.6
+=====
+
+2019-11-12
+
+* Handle unknown extras
+* Add help messages for CLI arguments
 
 
 0.0.5
