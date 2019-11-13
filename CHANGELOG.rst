@@ -2,8 +2,14 @@
 
 
 .. Keep the current version number on line number 5
+0.0.8.dev0
+==========
+
+
 0.0.7
 =====
+
+2019-11-13
 
 * Fix issue with unknown project in reverse
 
