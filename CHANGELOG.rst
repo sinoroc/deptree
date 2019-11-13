@@ -2,6 +2,12 @@
 
 
 .. Keep the current version number on line number 5
+0.0.7
+=====
+
+* Fix issue with unknown project in reverse
+
+
 0.0.6
 =====
 
