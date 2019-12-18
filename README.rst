@@ -71,7 +71,7 @@ Examples
 
 .. code::
 
-    $ deptree -r requests
+    $ deptree --reverse requests
     requests==2.22.0  #
       requests-toolbelt==0.9.1  # requests<3.0.0,>=2.0.1
         twine==2.0.0  # requests-toolbelt!=0.9.0,>=0.8.0
