@@ -29,7 +29,7 @@ Usage
 
 .. code::
 
-    usage: deptree [-h] [--version] [-r] [project [project ...]]
+    usage: deptree [-h] [--version] [-r] [-f] [project [project ...]]
 
     positional arguments:
       project        name of project whose dependencies (or dependents) to show
@@ -38,6 +38,7 @@ Usage
       -h, --help     show this help message and exit
       --version      show program's version number and exit
       -r, --reverse  show dependent projects instead of dependencies
+      -f, --flat     show flat list instead of tree
 
 
 Examples
@@ -45,37 +46,35 @@ Examples
 
 .. code::
 
-    $ deptree twine
-    twine==2.0.0  # twine
-      pkginfo==1.5.0.1  # pkginfo>=1.4.2
-      readme-renderer==24.0  # readme-renderer>=21.0
-        bleach==3.1.0  # bleach>=2.1.0
-          six==1.13.0  # six>=1.9.0
-          webencodings==0.5.1  # webencodings
-        docutils==0.15.2  # docutils>=0.13.1
-        Pygments==2.4.2  # Pygments
-        six==1.13.0  # six
-      requests==2.22.0  # requests>=2.20
-        certifi==2019.9.11  # certifi>=2017.4.17
-        chardet==3.0.4  # chardet<3.1.0,>=3.0.2
-        idna==2.8  # idna<2.9,>=2.5
-        urllib3==1.25.7  # urllib3!=1.25.0,!=1.25.1,<1.26,>=1.21.1
-      requests-toolbelt==0.9.1  # requests-toolbelt!=0.9.0,>=0.8.0
-        requests==2.22.0  # requests<3.0.0,>=2.0.1
-          certifi==2019.9.11  # certifi>=2017.4.17
-          chardet==3.0.4  # chardet<3.1.0,>=3.0.2
-          idna==2.8  # idna<2.9,>=2.5
-          urllib3==1.25.7  # urllib3!=1.25.0,!=1.25.1,<1.26,>=1.21.1
-      setuptools==39.0.1  # setuptools>=0.7.0
-      tqdm==4.38.0  # tqdm>=4.14
+    $ deptree cryptography
+    cryptography==2.8  # cryptography
+      cffi==1.13.2  # cffi!=1.11.3,>=1.8
+        pycparser==2.19  # pycparser
+      six==1.13.0  # six>=1.4.1
+
 
 .. code::
 
-    $ deptree --reverse requests
-    requests==2.22.0  #
-      requests-toolbelt==0.9.1  # requests<3.0.0,>=2.0.1
-        twine==2.0.0  # requests-toolbelt!=0.9.0,>=0.8.0
-      twine==2.0.0  # requests>=2.20
+    $ deptree --reverse cryptography
+    cryptography==2.8  #
+      SecretStorage==3.1.1  # cryptography
+        keyring==21.0.0  # secretstorage; sys_platform == "linux"
+          twine==3.1.1  # keyring>=15.1
+
+
+.. code::
+
+    $ deptree --flat cryptography
+    cryptography==2.8
+    # cffi!=1.11.3,>=1.8
+    # six>=1.4.1
+
+
+.. code::
+
+    $ deptree --flat --reverse cryptography
+    # secretstorage cryptography
+    cryptography==2.8
 
 
 Repositories

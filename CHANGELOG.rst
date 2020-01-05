@@ -5,6 +5,8 @@
 0.0.8.dev0
 ==========
 
+* Add '--flat' display option
+
 
 0.0.7
 =====

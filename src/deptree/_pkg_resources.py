@@ -53,11 +53,11 @@ def _display_missing(requirement, depth):
     )
 
 
-def _display_forward(project_req):
-    return _display_forward_one(project_req, [])
+def _display_forward_tree(project_req):
+    _display_forward_branch(project_req, [])
 
 
-def _display_forward_one(project_req, chain):
+def _display_forward_branch(project_req, chain):
     depth = len(chain)
     project_key = project_req.key
     if project_key in chain:
@@ -84,17 +84,17 @@ def _display_forward_one(project_req, chain):
                 print(unknown_extra_exception)
             else:
                 for dependency_req in dependency_reqs:
-                    _display_forward_one(
+                    _display_forward_branch(
                         dependency_req,
                         chain + [distribution.key],
                     )
 
 
-def _display_reverse(distributions, project_requirement):
-    return _display_reverse_one(distributions, project_requirement, None, [])
+def _display_reverse_tree(distributions, project_requirement):
+    _display_reverse_branch(distributions, project_requirement, None, [])
 
 
-def _display_reverse_one(distributions, project_req, dependency_req, chain):
+def _display_reverse_branch(distributions, project_req, dependency_req, chain):
     depth = len(chain)
     project_key = project_req.key
     if project_key in chain:
@@ -110,12 +110,47 @@ def _display_reverse_one(distributions, project_req, dependency_req, chain):
             dependents = distributions[project_key]['dependents'].items()
             for (dependent_key, next_dependency_req) in sorted(dependents):
                 dependent_req = pkg_resources.Requirement.parse(dependent_key)
-                _display_reverse_one(
+                _display_reverse_branch(
                     distributions,
                     dependent_req,
                     next_dependency_req,
                     chain + [project_key],
                 )
+
+
+def _display_forward_flat(project_requirement):
+    project_key = project_requirement.key
+    try:
+        distribution = pkg_resources.get_distribution(project_key)
+    except pkg_resources.DistributionNotFound:
+        print("{}  # !!! MISSING")
+    else:
+        print("{}=={}".format(distribution.project_name, distribution.version))
+        try:
+            dependency_requirements = sorted(
+                distribution.requires(extras=project_requirement.extras),
+                key=lambda req: req.key,
+            )
+        except pkg_resources.UnknownExtra as unknown_extra_exception:
+            print(unknown_extra_exception)
+        else:
+            for dependency_requirement in dependency_requirements:
+                print("# {}".format(dependency_requirement))
+    print("")
+
+
+def _display_reverse_flat(distributions, project_requirement):
+    project_key = project_requirement.key
+    try:
+        distribution = pkg_resources.get_distribution(project_key)
+    except pkg_resources.DistributionNotFound:
+        print("{}  # !!! MISSING")
+    else:
+        dependents = distributions[project_key]['dependents'].items()
+        for (dependent_key, dependent_req) in sorted(dependents):
+            print("# {} {}".format(dependent_key, dependent_req))
+        print("{}=={}".format(distribution.project_name, distribution.version))
+    print("")
 
 
 def _discover_distributions():
@@ -144,6 +179,11 @@ def _discover_distributions():
     return distributions
 
 
+def _select_all(distributions):
+    selection = sorted(distributions.keys())
+    return selection
+
+
 def _select_top_level(distributions):
     selection = [
         key
@@ -168,14 +208,16 @@ def _select_bottom_level(distributions):
     return selection
 
 
-def main(selection, reverse):
+def main(selection, reverse, flat):
     """ Main function """
     distributions = None
     if reverse or not selection:
         distributions = _discover_distributions()
 
     if not selection:
-        if reverse:
+        if flat:
+            selection = _select_all(distributions)
+        elif reverse:
             selection = _select_bottom_level(distributions)
         else:
             selection = _select_top_level(distributions)
@@ -183,9 +225,15 @@ def main(selection, reverse):
     for item in selection:
         requirement = pkg_resources.Requirement.parse(item)
         if reverse:
-            _display_reverse(distributions, requirement)
+            if flat:
+                _display_reverse_flat(distributions, requirement)
+            else:
+                _display_reverse_tree(distributions, requirement)
         else:
-            _display_forward(requirement)
+            if flat:
+                _display_forward_flat(requirement)
+            else:
+                _display_forward_tree(requirement)
 
 
 # EOF
