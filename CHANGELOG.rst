@@ -2,8 +2,10 @@
 
 
 .. Keep the current version number on line number 5
-0.0.8.dev0
-==========
+0.0.8
+=====
+
+2020-01-13
 
 * Add '--flat' display option
 
