@@ -19,9 +19,9 @@ Features
 
 * Show dependencies or dependents
 
-* Detects circular dependencies
+* Detect circular dependencies
 
-* Detects missing dependencies
+* Detect missing dependencies
 
 
 Usage
