@@ -56,34 +56,49 @@ Examples
 .. code::
 
     $ deptree cryptography
-    cryptography==2.8  # cryptography
-      cffi==1.13.2  # cffi!=1.11.3,>=1.8
-        pycparser==2.19  # pycparser
-      six==1.13.0  # six>=1.4.1
+    cryptography==2.9  # cryptography
+      cffi==1.14.0  # cffi!=1.11.3,>=1.8
+        pycparser==2.20  # pycparser
+      six==1.14.0  # six>=1.4.1
 
 
 .. code::
 
     $ deptree --reverse cryptography
-    cryptography==2.8  #
-      SecretStorage==3.1.1  # cryptography
-        keyring==21.0.0  # secretstorage; sys_platform == "linux"
+    cryptography==2.9  # -
+      SecretStorage==3.1.2  # cryptography
+        keyring==21.2.0  # SecretStorage>=3; sys_platform == "linux"
           twine==3.1.1  # keyring>=15.1
 
 
 .. code::
 
     $ deptree --flat cryptography
-    cryptography==2.8
-    # cffi!=1.11.3,>=1.8
+    cffi==1.14.0
+    # pycparser
+
+    cryptography==2.9
     # six>=1.4.1
+    # cffi!=1.11.3,>=1.8
+
+    pycparser==2.20
+
+    six==1.14.0
 
 
 .. code::
 
     $ deptree --flat --reverse cryptography
-    # secretstorage cryptography
-    cryptography==2.8
+    # SecretStorage: cryptography
+    cryptography==2.9
+
+    # twine: keyring>=15.1
+    keyring==21.2.0
+
+    # keyring: SecretStorage>=3; sys_platform == "linux"
+    SecretStorage==3.1.2
+
+    twine==3.1.1
 
 
 Installation

@@ -5,6 +5,10 @@
 0.0.9.dev0
 ==========
 
+* Show all dependencies (or dependents) in the flat view (instead of just 1
+  level deep)
+* Rewrite code
+
 
 0.0.8
 =====
