@@ -2,8 +2,8 @@
 
 
 .. Keep the current version number on line number 5
-0.0.9.dev0
-==========
+0.0.9
+=====
 
 * Show all dependencies (or dependents) in the flat view (instead of just 1
   level deep)
