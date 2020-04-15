@@ -7,6 +7,7 @@
 
 * Show all dependencies (or dependents) in the flat view (instead of just 1
   level deep)
+* Show summary in CLI's help output
 * Rewrite code
 
 

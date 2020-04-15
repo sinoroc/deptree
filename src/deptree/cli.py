@@ -20,6 +20,7 @@ def main():
     """
     args_parser = argparse.ArgumentParser(
         allow_abbrev=False,
+        description=_meta.SUMMARY,
     )
     args_parser.add_argument(
         '--version',

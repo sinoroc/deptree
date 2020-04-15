@@ -38,7 +38,10 @@ Usage
 
 .. code::
 
+    $ deptree --help
     usage: deptree [-h] [--version] [-r] [-f] [project [project ...]]
+
+    Display installed Python projects as a tree of dependencies
 
     positional arguments:
       project        name of project whose dependencies (or dependents) to show
