@@ -1,23 +1,24 @@
 ---
 
 
-'.test_common': &job_test_common
+'.review':
   script:
+    - 'export TOXENV="${CI_JOB_NAME##review}"'
     - 'python3 -m pip install tox'
     - 'python3 -m tox'
     - 'python3 -m tox -e package'
 
-'test py36':
-  <<: *job_test_common
+'review py36':
+  extends: '.review'
   image: 'python:3.6'
-  variables:
-    'TOXENV': 'py36'
 
-'test py37':
-  <<: *job_test_common
+'review py37':
+  extends: '.review'
   image: 'python:3.7'
-  variables:
-    'TOXENV': 'py37'
+
+'review py38':
+  extends: '.review'
+  image: 'python:3.8'
 
 
 ... EOF
