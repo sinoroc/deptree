@@ -45,6 +45,17 @@ Outside of a Python virtual environment run the following command::
     tox --recreate -e package
 
 
+Test circular dependencies
+--------------------------
+
+These projects can be used to test for circular dependencies:
+
+* https://pypi.org/project/CircularDependencyA/
+* https://pypi.org/project/CircularDependencyB/
+* https://pypi.org/project/ineedyou/
+* https://pypi.org/project/youneedme/
+
+
 .. Links
 
 .. _`GNU Make`: https://www.gnu.org/software/make/
