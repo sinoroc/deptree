@@ -25,9 +25,9 @@ def _display_conflict(distribution, requirement, depth=0):
     )
 
 
-def _display_cyclic(distribution, requirement, depth=0):
+def _display_circular(distribution, requirement, depth=0):
     print(
-        "{}{}  # !!! CYCLIC {}".format(
+        "{}{}  # !!! CIRCULAR {}".format(
             ' ' * INDENTATION * depth,
             distribution['project_name'],
             requirement['str'],
@@ -88,7 +88,7 @@ def _display_forward_tree(distributions, requirement, chain):
     project_key = requirement['dependency_project_key']
     distribution = distributions.get(project_key, None)
     if project_key in chain:
-        _display_cyclic(distribution, requirement, depth)
+        _display_circular(distribution, requirement, depth)
     else:
         if not distribution:
             _display_unknown(project_key, requirement, depth)
@@ -117,7 +117,7 @@ def _display_reverse_tree(
     project_key = requirement['dependent_project_key']
     distribution = distributions.get(project_key, None)
     if project_key in chain:
-        _display_cyclic(distribution, requirement, depth)
+        _display_circular(distribution, requirement, depth)
     else:
         if not distribution:
             _display_unknown(project_key, requirement, depth)
@@ -262,6 +262,78 @@ def _select_flat(distributions, is_reverse, preselection, selection):
             )
 
 
+def _visit_forward(distributions, requirement, visited, chain) -> None:
+    distribution_key = requirement['dependency_project_key']
+    if distribution_key not in visited:
+        visited.append(distribution_key)
+    if distribution_key not in chain:
+        distribution = distributions.get(distribution_key, None)
+        if distribution:
+            for dependency_key in distribution['dependencies']:
+                dependency = distribution['dependencies'][dependency_key]
+                _visit_forward(
+                    distributions,
+                    dependency,
+                    visited,
+                    chain + [distribution_key],
+                )
+
+
+def _visit_reverse(distributions, requirement, visited, chain) -> None:
+    distribution_key = requirement['dependent_project_key']
+    if distribution_key not in visited:
+        visited.append(distribution_key)
+    if distribution_key not in chain:
+        distribution = distributions.get(distribution_key, None)
+        if distribution:
+            for dependent_key in distribution['dependents']:
+                dependent_distribution = distributions[dependent_key]
+                dependencies = dependent_distribution['dependencies']
+                dependency_requirement = dependencies[distribution_key]
+                _visit_reverse(
+                    distributions,
+                    dependency_requirement,
+                    visited,
+                    chain + [distribution_key],
+                )
+
+
+def _find_orphan_cycles(distributions, selection, is_reverse) -> None:
+    visited = []
+    for distribution_key in selection:
+        if is_reverse:
+            _visit_reverse(
+                distributions,
+                selection[distribution_key],
+                visited,
+                [],
+            )
+        else:
+            _visit_forward(
+                distributions,
+                selection[distribution_key],
+                visited,
+                [],
+            )
+    #
+    has_maybe_more_orphans = True
+    max_detections = 99
+    detections_counter = 0
+    while has_maybe_more_orphans and detections_counter < max_detections:
+        detections_counter += 1
+        has_maybe_more_orphans = False
+        for distribution_key in distributions:
+            if distribution_key not in visited:
+                requirement = _make_requirement(distribution_key, is_reverse)
+                selection[distribution_key] = requirement
+                if is_reverse:
+                    _visit_reverse(distributions, requirement, visited, [])
+                else:
+                    _visit_forward(distributions, requirement, visited, [])
+                has_maybe_more_orphans = True
+                break
+
+
 def _select_bottom(distributions, selection) -> None:
     for distribution_key in distributions:
         if distribution_key not in selection:
@@ -270,6 +342,7 @@ def _select_bottom(distributions, selection) -> None:
                 selection[distribution_key] = (
                     _make_requirement(distribution_key, True)
                 )
+    _find_orphan_cycles(distributions, selection, True)
 
 
 def _select_top(distributions, selection) -> None:
@@ -280,6 +353,7 @@ def _select_top(distributions, selection) -> None:
                 selection[distribution_key] = (
                     _make_requirement(distribution_key, False)
                 )
+    _find_orphan_cycles(distributions, selection, False)
 
 
 class _SelectType(enum.Enum):

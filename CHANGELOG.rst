@@ -2,8 +2,18 @@
 
 
 .. Keep the current version number on line number 5
+0.0.10
+======
+
+2020-04-17
+
+* Improve detection of circular dependencies
+
+
 0.0.9
 =====
+
+2010-04-15
 
 * Show all dependencies (or dependents) in the flat view (instead of just 1
   level deep)

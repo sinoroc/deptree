@@ -104,6 +104,14 @@ Examples
     twine==3.1.1
 
 
+.. code::
+
+    $ deptree CircularDependencyA
+    CircularDependencyA==0.0.0  # CircularDependencyA
+      CircularDependencyB==0.0.0  # CircularDependencyB
+        CircularDependencyA  # !!! CIRCULAR CircularDependencyA
+
+
 Installation
 ------------
 
