@@ -2,8 +2,10 @@
 
 
 .. Keep the current version number on line number 5
-0.0.10.dev0
-===========
+0.0.10
+======
+
+2020-04-17
 
 * Improve detection of circular dependencies
 
