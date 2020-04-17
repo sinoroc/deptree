@@ -5,6 +5,8 @@
 0.0.10.dev0
 ===========
 
+* Improve detection of circular dependencies
+
 
 0.0.9
 =====
