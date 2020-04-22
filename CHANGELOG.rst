@@ -17,7 +17,7 @@
 0.0.9
 =====
 
-2010-04-15
+2020-04-15
 
 * Show all dependencies (or dependents) in the flat view (instead of just 1
   level deep)
