@@ -1,16 +1,13 @@
 #
 
-
 """ Command line interface
 """
-
 
 import argparse
 
 from . import _i18n
 from . import _meta
 from . import _pkg_resources
-
 
 _ = _i18n._
 

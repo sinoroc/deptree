@@ -1,15 +1,12 @@
 #
 
-
 """ Implementation based on 'pkg_resources' from 'setuptools'
 """
-
 
 import copy
 import enum
 
 import pkg_resources
-
 
 INDENTATION = 2
 
@@ -104,15 +101,11 @@ def _display_forward_tree(distributions, requirement, chain):
                 _display_forward_tree(
                     distributions,
                     dependency,
-                    chain + [project_key]
+                    chain + [project_key],
                 )
 
 
-def _display_reverse_tree(
-        distributions,
-        requirement,
-        chain,
-):
+def _display_reverse_tree(distributions, requirement, chain):
     depth = len(chain)
     project_key = requirement['dependent_project_key']
     distribution = distributions.get(project_key, None)
@@ -404,8 +397,7 @@ def _discover_distributions(preselection, is_reverse, is_flat):
         #
         extras = (
             preselection[project_key]['extras']
-            if project_key in preselection
-            else []
+            if project_key in preselection else []
         )
         #
         if select_type == _SelectType.ALL and project_key not in selection:
@@ -428,7 +420,7 @@ def _discover_distributions(preselection, is_reverse, is_flat):
             except pkg_resources.DistributionNotFound:
                 pass
             #
-            if (
+            if (  #
                     select_type == _SelectType.ALL
                     and dependency_key not in selection
             ):
@@ -437,7 +429,7 @@ def _discover_distributions(preselection, is_reverse, is_flat):
                     is_reverse,
                 )
     #
-    if select_type in (_SelectType.FLAT,):
+    if select_type == _SelectType.FLAT:
         _select_flat(distributions, is_reverse, preselection, selection)
     elif select_type == _SelectType.BOTTOM:
         _select_bottom(distributions, selection)
@@ -465,7 +457,7 @@ def main(user_selection, is_reverse, is_flat):
     """ Main function """
     #
     preselection = _make_preselection(user_selection, is_reverse)
-    (distributions, selection,) = _discover_distributions(
+    (distributions, selection) = _discover_distributions(
         preselection,
         is_reverse,
         is_flat,
