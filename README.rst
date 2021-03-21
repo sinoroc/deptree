@@ -145,12 +145,14 @@ Similar projects
 
 * `johnnydep`_
 * `pipdeptree`_
+* `pipgrip`_
 
 
 .. Links
 
 .. _`johnnydep`: https://pypi.org/project/johnnydep/
 .. _`pipdeptree`: https://pypi.org/project/pipdeptree/
+.. _`pipgrip`: https://pypi.org/project/pipgrip/
 .. _`toolmaker`: https://pypi.org/project/toolmaker/
 .. _`zapp`: https://pypi.org/project/zapp/
 
