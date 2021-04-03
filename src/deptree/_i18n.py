@@ -1,6 +1,5 @@
 #
 
-
 """
 Internationalisation
 """
@@ -11,6 +10,5 @@ def _translate(message):
 
 
 _ = _translate
-
 
 # EOF

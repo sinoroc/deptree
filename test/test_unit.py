@@ -1,7 +1,6 @@
 """ Unit tests
 """
 
-
 import unittest
 
 import deptree
