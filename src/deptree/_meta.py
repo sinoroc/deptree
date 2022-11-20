@@ -3,13 +3,13 @@
 """ Meta information
 """
 
-import importlib_metadata
+import importlib.metadata
 
 PROJECT_NAME = 'deptree'
 
 
 def _get_metadata():
-    return importlib_metadata.metadata(PROJECT_NAME)
+    return importlib.metadata.metadata(PROJECT_NAME)
 
 
 def get_summary():
