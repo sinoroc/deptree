@@ -22,9 +22,12 @@
   image: 'python:3.9'
 
 'review py310':
-  allow_failure: true
   extends: '.review'
-  image: 'python:3.10-rc'
+  image: 'python:3.10'
+
+'review py311':
+  extends: '.review'
+  image: 'python:3.11'
 
 
 ... EOF

@@ -5,6 +5,8 @@
 0.0.11.dev0
 ===========
 
+* Supported Python versions 3.7 to 3.11
+
 
 0.0.10
 ======
