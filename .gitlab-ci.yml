@@ -9,10 +9,6 @@
     - 'python3 -m tox'
     - 'python3 -m tox -e package'
 
-'review py36':
-  extends: '.review'
-  image: 'python:3.6'
-
 'review py37':
   extends: '.review'
   image: 'python:3.7'
