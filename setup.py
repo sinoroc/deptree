@@ -9,7 +9,7 @@ import setuptools
 
 def _setup():
     here = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(here, 'CHANGELOG.rst')) as file_:
+    with open(os.path.join(here, 'CHANGELOG.rst'), encoding='utf_8') as file_:
         changelog = file_.read()
 
     version = changelog.splitlines()[4]
