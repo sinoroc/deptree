@@ -10,7 +10,7 @@ tests_dir := ./test
 
 .PHONY: develop
 develop:
-	python3 setup.py develop
+	python setup.py develop
 
 
 .PHONY: package
@@ -19,49 +19,49 @@ package: sdist wheel zapp
 
 .PHONY: sdist
 sdist:
-	python3 setup.py sdist
-	python3 -m twine check dist/*.tar.gz
+	python setup.py sdist
+	python -m twine check dist/*.tar.gz
 
 
 .PHONY: wheel
 wheel:
-	python3 setup.py bdist_wheel
-	python3 -m twine check dist/*.whl
+	python setup.py bdist_wheel
+	python -m twine check dist/*.whl
 
 
 .PHONY: zapp
 zapp:
-	python3 setup.py bdist_zapp
+	python setup.py bdist_zapp
 
 
 .PHONY: format
 format:
-	python3 -m yapf --in-place --parallel --recursive setup.py $(source_dir) $(tests_dir)
+	python -m yapf --in-place --parallel --recursive setup.py $(source_dir) $(tests_dir)
 
 
 .PHONY: check
 check:
-	python3 setup.py check
+	python setup.py check
 
 
 .PHONY: lint
 lint:
-	python3 -m pytest --pycodestyle --pylint --yapf -m 'pycodestyle or pylint or yapf'
+	python -m pytest --pycodestyle --pylint --yapf -m 'pycodestyle or pylint or yapf'
 
 
 .PHONY: pycodestyle
 pycodestyle:
-	python3 -m pytest --pycodestyle -m pycodestyle
+	python -m pytest --pycodestyle -m pycodestyle
 
 
 .PHONY: pylint
 pylint:
-	python3 -m pytest --pylint -m pylint
+	python -m pytest --pylint -m pylint
 
 
 .PHONY: yapf
 yapf:
-	python3 -m pytest --yapf -m yapf
+	python -m pytest --yapf -m yapf
 
 
 .PHONY: test
@@ -70,12 +70,12 @@ test: pytest
 
 .PHONY: pytest
 pytest:
-	python3 -m pytest
+	python -m pytest
 
 
 .PHONY: review
 review: check
-	python3 -m pytest --pycodestyle --pylint --yapf
+	python -m pytest --pycodestyle --pylint --yapf
 
 
 .PHONY: clean
