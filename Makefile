@@ -5,12 +5,12 @@ source_dir := ./src
 tests_dir := ./test
 
 
-.DEFAULT_GOAL := develop
+.DEFAULT_GOAL := editable
 
 
-.PHONY: develop
-develop:
-	python setup.py develop
+.PHONY: editable
+editable:
+	python -m pip install --editable .
 
 
 .PHONY: package
