@@ -14,18 +14,18 @@ develop:
 
 
 .PHONY: package
-package: sdist wheel zapp
+package: check sdist wheel zapp
 
 
 .PHONY: sdist
 sdist:
-	python setup.py sdist
+	python -m build --sdist
 	python -m twine check dist/*.tar.gz
 
 
 .PHONY: wheel
 wheel:
-	python setup.py bdist_wheel
+	python -m build --wheel
 	python -m twine check dist/*.whl
 
 
