@@ -17,12 +17,12 @@ def main():
     """
     args_parser = argparse.ArgumentParser(
         allow_abbrev=False,
-        description=_meta.SUMMARY,
+        description=_meta.get_summary(),
     )
     args_parser.add_argument(
         '--version',
         action='version',
-        version=_meta.VERSION,
+        version=_meta.get_version(),
     )
     args_parser.add_argument(
         '-r',
