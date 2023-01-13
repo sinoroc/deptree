@@ -3,11 +3,11 @@
 
 '.review':
   before_script:
-    - 'python3 -m pip install tox'
+    - 'python -m pip install tox'
   script:
     - 'export TOXENV="${CI_JOB_NAME##review}"'
-    - 'python3 -m tox'
-    - 'python3 -m tox -e package'
+    - 'python -m tox'
+    - 'python -m tox -e package'
 
 'review py37':
   extends: '.review'
@@ -30,4 +30,4 @@
   image: 'python:3.11'
 
 
-... EOF
+...  # EOF

@@ -16,11 +16,11 @@ python:
   - '3.11'
 
 install:
-  - 'python3 -m pip install tox tox-travis'
+  - 'python -m pip install tox tox-travis'
 
 script:
-  - 'python3 -m tox'
-  - 'python3 -m tox -e package'
+  - 'python -m tox'
+  - 'python -m tox -e package'
 
 deploy:
   - provider: 'releases'
@@ -42,4 +42,4 @@ deploy:
 sudo: false
 
 
-... EOF
+...  # EOF
