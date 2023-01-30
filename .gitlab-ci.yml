@@ -9,23 +9,23 @@
     - 'python -m tox'
     - 'python -m tox -e package'
 
-'review py37':
+'review py3.7':
   extends: '.review'
   image: 'python:3.7'
 
-'review py38':
+'review py3.8':
   extends: '.review'
   image: 'python:3.8'
 
-'review py39':
+'review py3.9':
   extends: '.review'
   image: 'python:3.9'
 
-'review py310':
+'review py3.10':
   extends: '.review'
   image: 'python:3.10'
 
-'review py311':
+'review py3.11':
   extends: '.review'
   image: 'python:3.11'
 

@@ -1,0 +1,55 @@
+---
+
+
+name: 'main-workflow'
+run-name: "Main workflow"
+
+on: ['push']
+
+jobs:
+
+  'review-job':
+    name: "Review for Python ${{ matrix.python-version }}"
+    runs-on: 'ubuntu-22.04'
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version:
+          - '3.7'
+          - '3.8'
+          - '3.9'
+          - '3.10'
+          - '3.11'
+    steps:
+      - uses: 'actions/setup-python@v4'
+        with:
+          python-version: '${{ matrix.python-version }}'
+      - run: 'python -m pip install tox'
+      - uses: 'actions/checkout@v3'
+        with:
+          fetch-depth: 0
+      - run: 'tox run -e py${{ matrix.python-version }}'
+
+  'release-job':
+    name: "Create GitHub release and publish on PyPI (if tag)"
+    if: "github.event_name == 'push' && startsWith(github.ref, 'refs/tags')"
+    needs: ['review-job']
+    runs-on: 'ubuntu-22.04'
+    steps:
+      - uses: 'actions/setup-python@v4'
+        with:
+          python-version: '3.7'
+      - uses: 'actions/checkout@v3'
+        with:
+          fetch-depth: 0
+      - run: 'python -m pip install tox'
+      - run: 'tox run -e package'
+      - run: 'gh release create "${GITHUB_REF_NAME}" dist/*'
+        env:
+          GITHUB_TOKEN: '${{ secrets.MY_GITHUB_TOKEN }}'
+      - uses: 'pypa/gh-action-pypi-publish@v1.6.4'
+        with:
+          password: '${{ secrets.PYPI_API_TOKEN }}'
+
+
+...  # EOF
