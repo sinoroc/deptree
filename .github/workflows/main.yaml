@@ -4,13 +4,16 @@
 name: 'main-workflow'
 run-name: "Main workflow"
 
-on: ['push']
+on:
+  push:
 
 jobs:
 
   'review-job':
+
     name: "Review for Python ${{ matrix.python-version }}"
     runs-on: 'ubuntu-22.04'
+
     strategy:
       fail-fast: true
       matrix:
@@ -20,34 +23,45 @@ jobs:
           - '3.9'
           - '3.10'
           - '3.11'
+
+    env:
+      'BASE_PYTHON': '3.7'
+
+    permissions:
+      contents: 'write'
+      discussions: 'write'
+
     steps:
-      - uses: 'actions/setup-python@v4'
+
+      - name: "Setup Python ${{ matrix.python-version }}"
+        uses: 'actions/setup-python@v4'
         with:
           python-version: '${{ matrix.python-version }}'
-      - run: 'python -m pip install tox'
-      - uses: 'actions/checkout@v3'
-        with:
-          fetch-depth: 0
-      - run: 'tox run -e py${{ matrix.python-version }}'
 
-  'release-job':
-    name: "Create GitHub release and publish on PyPI (if tag)"
-    if: "github.event_name == 'push' && startsWith(github.ref, 'refs/tags')"
-    needs: ['review-job']
-    runs-on: 'ubuntu-22.04'
-    steps:
-      - uses: 'actions/setup-python@v4'
-        with:
-          python-version: '3.7'
-      - uses: 'actions/checkout@v3'
+      - name: "Install tox"
+        run: 'python -m pip install tox'
+
+      - name: "Checkout code"
+        uses: 'actions/checkout@v3'
         with:
           fetch-depth: 0
-      - run: 'python -m pip install tox'
-      - run: 'tox run -e package'
-      - run: 'gh release create "${GITHUB_REF_NAME}" dist/*'
+
+      - name: "Review code for Python ${{ matrix.python-version }}"
+        run: 'tox run -e py${{ matrix.python-version }}'
+
+      - name: "Build distribution packages with Python ${{ matrix.python-version }}"
+        if: "matrix.python-version == env.BASE_PYTHON"
+        run: 'tox run -e package'
+
+      - name: "Create GitHub release"
+        if: "matrix.python-version == env.BASE_PYTHON && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')"
+        run: 'gh release create --discussion-category "Announcements" --generate-notes --verify-tag "${GITHUB_REF_NAME}" dist/*'
         env:
-          GITHUB_TOKEN: '${{ secrets.MY_GITHUB_TOKEN }}'
-      - uses: 'pypa/gh-action-pypi-publish@v1.6.4'
+          GITHUB_TOKEN: '${{ github.TOKEN }}'
+
+      - name: "Publish distribution packages on PyPI"
+        if: "matrix.python-version == env.BASE_PYTHON && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')"
+        uses: 'pypa/gh-action-pypi-publish@v1.6.4'
         with:
           password: '${{ secrets.PYPI_API_TOKEN }}'
 
