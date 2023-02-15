@@ -14,7 +14,7 @@ editable:
 
 
 .PHONY: package
-package: check sdist wheel zapp
+package: sdist wheel zapp
 
 
 .PHONY: sdist
@@ -37,11 +37,6 @@ zapp:
 .PHONY: format
 format:
 	python -m yapf --in-place --parallel --recursive setup.py $(source_dir) $(tests_dir)
-
-
-.PHONY: check
-check:
-	python setup.py check
 
 
 .PHONY: lint
@@ -74,7 +69,7 @@ pytest:
 
 
 .PHONY: review
-review: check
+review:
 	python -m pytest --pycodestyle --pylint --yapf
 
 
