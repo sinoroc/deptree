@@ -1,0 +1,49 @@
+#
+
+
+[build-system]
+build-backend = 'setuptools.build_meta'
+requires = [
+    'setuptools >= 43.0.0',  # https://github.com/pypa/setuptools/pull/1634
+]
+
+
+[project]
+name = "deptree"
+#
+authors = [
+    { name = "sinoroc", email = "sinoroc.code+python@gmail.com" },
+]
+description = "Display installed Python projects as a tree of dependencies"
+license.text = "Apache-2.0"
+readme = "README.rst"
+urls.PyPI = "https://pypi.org/project/deptree/"
+urls.GitLab = "https://gitlab.com/sinoroc/deptree"
+urls.GitHub = "https://github.com/sinoroc/deptree"
+#
+dependencies = [
+    "importlib-metadata",
+    "setuptools",  # for `pkg_resources`
+]
+optional-dependencies.dev-package = [
+    "build",
+    "twine",
+    "zapp",
+]
+optional-dependencies.dev-test = [
+    "pytest",
+    "pytest-pycodestyle",
+    "pytest-pydocstyle",
+    "pytest-pylint",
+    "pytest-yapf3",
+    "yapf",
+]
+#
+scripts.deptree = "deptree.cli:main"
+#
+dynamic = [
+    "version",
+]
+
+
+# EOF

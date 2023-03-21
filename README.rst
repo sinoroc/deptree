@@ -125,8 +125,8 @@ For example:
 
 .. code::
 
-    $ python3 -m pip install --target ./deptree/ deptree
-    $ python3 -m zipapp --python '/usr/bin/env python3' --main 'deptree.cli:main' ./deptree/
+    $ python -m pip install --target ./deptree/ deptree
+    $ python -m zipapp --python '/usr/bin/env python' --main 'deptree.cli:main' ./deptree/
     $ mv ./deptree.pyz ~/.local/bin/deptree
 
 
@@ -145,12 +145,14 @@ Similar projects
 
 * `johnnydep`_
 * `pipdeptree`_
+* `pipgrip`_
 
 
 .. Links
 
 .. _`johnnydep`: https://pypi.org/project/johnnydep/
 .. _`pipdeptree`: https://pypi.org/project/pipdeptree/
+.. _`pipgrip`: https://pypi.org/project/pipgrip/
 .. _`toolmaker`: https://pypi.org/project/toolmaker/
 .. _`zapp`: https://pypi.org/project/zapp/
 
