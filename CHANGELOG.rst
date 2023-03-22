@@ -2,8 +2,13 @@
 
 
 .. Keep the current version number on line number 5
-0.0.12.dev0
-===========
+0.0.12
+======
+
+2023-03-22
+
+* No functional changes
+* Development tooling and workflow improvements
 
 
 0.0.11
@@ -12,8 +17,8 @@
 2023-03-21
 
 * Supported Python versions 3.7 to 3.11
-* No functional changes.
-* Development tooling and workflow improvements.
+* No functional changes
+* Development tooling and workflow improvements
 
 
 0.0.10
