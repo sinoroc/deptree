@@ -41,7 +41,7 @@ format:
 
 .PHONY: lint
 lint:
-	python -m pytest --pycodestyle --pylint --yapf -m 'pycodestyle or pylint or yapf'
+	python -m pytest --pycodestyle --pydocstyle --pylint --yapf -m 'pycodestyle or pydocstyle or pylint or yapf'
 
 
 .PHONY: pycodestyle
