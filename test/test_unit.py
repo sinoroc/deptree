@@ -1,5 +1,4 @@
-""" Unit tests
-"""
+"""Unit tests."""
 
 import unittest
 
@@ -7,9 +6,10 @@ import deptree
 
 
 class TestSelectType(unittest.TestCase):
-    """Selection type"""
+    """Selection type."""
 
     def setUp(self):
+        """Set up."""
         self.get_select_type = (
             # pylint: disable=protected-access
             deptree._pkg_resources._get_select_type
@@ -20,7 +20,7 @@ class TestSelectType(unittest.TestCase):
         )
 
     def test_select_type_all(self):
-        """Selection type should be 'ALL'"""
+        """Selection type should be ``ALL``."""
         self.assertEqual(
             self.get_select_type(
                 has_preselection=False,
@@ -39,7 +39,7 @@ class TestSelectType(unittest.TestCase):
         )
 
     def test_select_type_bottom(self):
-        """Selection type should be 'BOTTOM'"""
+        """Selection type should be ``BOTTOM``."""
         self.assertEqual(
             self.get_select_type(
                 has_preselection=False,
@@ -50,7 +50,7 @@ class TestSelectType(unittest.TestCase):
         )
 
     def test_select_type_flatten(self):
-        """Selection type should be 'FLAT'"""
+        """Selection type should be ``FLAT``."""
         self.assertEqual(
             self.get_select_type(
                 has_preselection=True,
@@ -69,7 +69,7 @@ class TestSelectType(unittest.TestCase):
         )
 
     def test_select_type_user(self):
-        """Selection type should be 'USER'"""
+        """Selection type should be ``USER``."""
         self.assertEqual(
             self.get_select_type(
                 has_preselection=True,
@@ -88,7 +88,7 @@ class TestSelectType(unittest.TestCase):
         )
 
     def test_select_type_top(self):
-        """Selection type should be 'TOP'"""
+        """Selection type should be ``TOP``."""
         self.assertEqual(
             self.get_select_type(
                 has_preselection=False,
