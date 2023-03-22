@@ -1,7 +1,6 @@
 #
 
-""" Meta information
-"""
+"""Meta information."""
 
 import importlib_metadata
 

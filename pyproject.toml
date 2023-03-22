@@ -17,9 +17,9 @@ authors = [
 description = "Display installed Python projects as a tree of dependencies"
 license.text = "Apache-2.0"
 readme = "README.rst"
-urls.PyPI = "https://pypi.org/project/deptree/"
 urls.GitLab = "https://gitlab.com/sinoroc/deptree"
 urls.GitHub = "https://github.com/sinoroc/deptree"
+urls.PyPI = "https://pypi.org/project/deptree/"
 #
 dependencies = [
     "importlib-metadata",

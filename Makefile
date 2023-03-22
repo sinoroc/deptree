@@ -49,6 +49,11 @@ pycodestyle:
 	python -m pytest --pycodestyle -m pycodestyle
 
 
+.PHONY: pydocstyle
+pydocstyle:
+	python -m pytest --pydocstyle -m pydocstyle
+
+
 .PHONY: pylint
 pylint:
 	python -m pytest --pylint -m pylint
@@ -70,7 +75,7 @@ pytest:
 
 .PHONY: review
 review:
-	python -m pytest --pycodestyle --pylint --yapf
+	python -m pytest --pycodestyle --pydocstyle --pylint --yapf
 
 
 .PHONY: clean

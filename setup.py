@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-""" Setup script """
+"""Setup."""
 
 import os
 
