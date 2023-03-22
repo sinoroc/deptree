@@ -57,6 +57,10 @@ jobs:
         env:
           GITHUB_TOKEN: '${{ github.TOKEN }}'
 
+      - name: "Clean `dist` directory before uploading to PyPI"
+        if: "matrix.python-version == env.BASE_PYTHON && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')"
+        run: "find './dist/' -type f -not -name '*.tar.gz' -not -name '*.whl' -delete"
+
       - name: "Publish distribution packages on PyPI"
         if: "matrix.python-version == env.BASE_PYTHON && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')"
         uses: 'pypa/gh-action-pypi-publish@v1.6.4'
