@@ -1,8 +1,6 @@
 #
 
-"""
-Internationalisation
-"""
+"""Internationalization."""
 
 
 def _translate(message):

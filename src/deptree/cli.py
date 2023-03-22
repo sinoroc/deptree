@@ -1,7 +1,6 @@
 #
 
-""" Command line interface
-"""
+"""Command line interface."""
 
 import argparse
 
@@ -13,8 +12,7 @@ _ = _i18n._
 
 
 def main():
-    """ CLI main function
-    """
+    """CLI main function."""
     args_parser = argparse.ArgumentParser(
         allow_abbrev=False,
         description=_meta.get_summary(),

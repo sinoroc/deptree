@@ -1,7 +1,6 @@
 #
 
-""" Module main entry point
-"""
+"""deptree main entry point."""
 
 import sys
 

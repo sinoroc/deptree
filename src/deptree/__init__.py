@@ -1,7 +1,6 @@
 #
 
-""" Module initializer
-"""
+"""deptree app."""
 
 from . import _meta
 from . import cli

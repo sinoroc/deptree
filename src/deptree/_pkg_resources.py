@@ -1,7 +1,6 @@
 #
 
-""" Implementation based on 'pkg_resources' from 'setuptools'
-"""
+"""Implementation based on ``pkg_resources`` from ``setuptools``."""
 
 import copy
 import enum
@@ -437,7 +436,7 @@ def _make_preselection(user_selection, is_reverse):
 
 
 def main(user_selection, is_reverse, is_flat):
-    """ Main function """
+    """CLI main function."""
     #
     preselection = _make_preselection(user_selection, is_reverse)
     (distributions, selection) = _discover_distributions(
