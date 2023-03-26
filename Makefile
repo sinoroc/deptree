@@ -10,7 +10,7 @@ tests_dir := ./test
 
 .PHONY: editable
 editable:
-	python -m pip install --editable .
+	python -m pip install --editable '.[dev-package,dev-test]'
 
 
 .PHONY: package
