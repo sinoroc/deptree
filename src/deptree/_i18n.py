@@ -3,7 +3,7 @@
 """Internationalization."""
 
 
-def _translate(message):
+def _translate(message: str) -> str:
     return message
 
 

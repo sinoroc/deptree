@@ -9,40 +9,44 @@ requires = [
 
 
 [project]
-name = "deptree"
+name = 'deptree'
 #
 authors = [
-    { name = "sinoroc", email = "sinoroc.code+python@gmail.com" },
+    { name = 'sinoroc', email = 'sinoroc.code+python@gmail.com' },
 ]
-description = "Display installed Python projects as a tree of dependencies"
-license.text = "Apache-2.0"
-readme = "README.rst"
-urls.GitLab = "https://gitlab.com/sinoroc/deptree"
-urls.GitHub = "https://github.com/sinoroc/deptree"
-urls.PyPI = "https://pypi.org/project/deptree/"
+description = 'Display installed Python projects as a tree of dependencies'
+license.text = 'Apache-2.0'
+readme = 'README.rst'
+urls.GitLab = 'https://gitlab.com/sinoroc/deptree'
+urls.GitHub = 'https://github.com/sinoroc/deptree'
+urls.PyPI = 'https://pypi.org/project/deptree/'
+#
+requires-python = '>=3.7'  # for `dataclasses`
 #
 dependencies = [
-    "importlib-metadata",
-    "setuptools",  # for `pkg_resources`
+    'importlib-metadata',
+    'setuptools',  # for `pkg_resources`
 ]
 optional-dependencies.dev-package = [
-    "build",
-    "twine",
-    "zapp",
+    'build',
+    'twine',
+    'zapp',
 ]
 optional-dependencies.dev-test = [
-    "pytest",
-    "pytest-pycodestyle",
-    "pytest-pydocstyle",
-    "pytest-pylint",
-    "pytest-yapf3",
-    "yapf",
+    'pytest',
+    'pytest-mypy',
+    'pytest-pycodestyle',
+    'pytest-pydocstyle',
+    'pytest-pylint',
+    'pytest-yapf3',
+    'types-setuptools',
+    'yapf',
 ]
 #
-scripts.deptree = "deptree.cli:main"
+scripts.deptree = 'deptree.cli:main'
 #
 dynamic = [
-    "version",
+    'version',
 ]
 
 

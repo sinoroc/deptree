@@ -44,6 +44,11 @@ lint:
 	python -m pytest --pycodestyle --pydocstyle --pylint --yapf -m 'pycodestyle or pydocstyle or pylint or yapf'
 
 
+.PHONY: mypy
+mypy:
+	python -m pytest --mypy -m mypy
+
+
 .PHONY: pycodestyle
 pycodestyle:
 	python -m pytest --pycodestyle -m pycodestyle
@@ -75,7 +80,7 @@ pytest:
 
 .PHONY: review
 review:
-	python -m pytest --pycodestyle --pydocstyle --pylint --yapf
+	python -m pytest --mypy --pycodestyle --pydocstyle --pylint --yapf
 
 
 .PHONY: clean
@@ -84,6 +89,7 @@ clean:
 	$(RM) --recursive ./.pytest_cache/
 	$(RM) --recursive ./build/
 	$(RM) --recursive ./dist/
+	$(RM) --recursive ./.mypy_cache/
 	$(RM) --recursive ./__pycache__/
 	find $(source_dir) -name '*.dist-info' -type d -exec $(RM) --recursive {} +
 	find $(source_dir) -name '*.egg-info' -type d -exec $(RM) --recursive {} +
