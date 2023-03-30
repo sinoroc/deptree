@@ -2,8 +2,8 @@
 
 
 .. Keep the current version number on line number 5
-0.0.13.dev0
-===========
+0.1.0.dev0
+==========
 
 
 0.0.12
