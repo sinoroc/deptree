@@ -5,6 +5,9 @@
 0.1.0.dev0
 ==========
 
+* Added type hints
+* Python minimum version *3.7* required
+
 
 0.0.12
 ======
@@ -20,7 +23,7 @@
 
 2023-03-21
 
-* Supported Python versions 3.7 to 3.11
+* Supported Python versions *3.7* to *3.11*
 * No functional changes
 * Development tooling and workflow improvements
 

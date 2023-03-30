@@ -4,5 +4,7 @@
 include CHANGELOG.rst
 include LICENSE.txt
 
+include src/deptree/py.typed
+
 
 # EOF

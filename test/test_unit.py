@@ -8,7 +8,7 @@ import deptree
 class TestSelectType(unittest.TestCase):
     """Selection type."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up."""
         self.get_select_type = (
             # pylint: disable=protected-access
@@ -19,7 +19,7 @@ class TestSelectType(unittest.TestCase):
             deptree._pkg_resources._SelectType
         )
 
-    def test_select_type_all(self):
+    def test_select_type_all(self) -> None:
         """Selection type should be ``ALL``."""
         self.assertEqual(
             self.get_select_type(
@@ -38,7 +38,7 @@ class TestSelectType(unittest.TestCase):
             self.select_type.ALL,
         )
 
-    def test_select_type_bottom(self):
+    def test_select_type_bottom(self) -> None:
         """Selection type should be ``BOTTOM``."""
         self.assertEqual(
             self.get_select_type(
@@ -49,7 +49,7 @@ class TestSelectType(unittest.TestCase):
             self.select_type.BOTTOM,
         )
 
-    def test_select_type_flatten(self):
+    def test_select_type_flatten(self) -> None:
         """Selection type should be ``FLAT``."""
         self.assertEqual(
             self.get_select_type(
@@ -68,7 +68,7 @@ class TestSelectType(unittest.TestCase):
             self.select_type.FLAT,
         )
 
-    def test_select_type_user(self):
+    def test_select_type_user(self) -> None:
         """Selection type should be ``USER``."""
         self.assertEqual(
             self.get_select_type(
@@ -87,7 +87,7 @@ class TestSelectType(unittest.TestCase):
             self.select_type.USER,
         )
 
-    def test_select_type_top(self):
+    def test_select_type_top(self) -> None:
         """Selection type should be ``TOP``."""
         self.assertEqual(
             self.get_select_type(

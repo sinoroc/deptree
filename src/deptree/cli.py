@@ -3,6 +3,7 @@
 """Command line interface."""
 
 import argparse
+import typing
 
 from . import _i18n
 from . import _meta
@@ -11,7 +12,7 @@ from . import _pkg_resources
 _ = _i18n._
 
 
-def main():
+def main() -> int:
     """CLI main function."""
     args_parser = argparse.ArgumentParser(
         allow_abbrev=False,
@@ -41,7 +42,14 @@ def main():
         nargs='*',
     )
     args = args_parser.parse_args()
-    _pkg_resources.main(args.selected_projects, args.reverse, args.flat)
+    #
+    result = _pkg_resources.main(
+        typing.cast(typing.List[str], args.selected_projects),
+        typing.cast(bool, args.reverse),
+        typing.cast(bool, args.flat),
+    )
+    #
+    return result
 
 
 # EOF

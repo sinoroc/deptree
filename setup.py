@@ -7,7 +7,7 @@ import os
 import setuptools
 
 
-def _setup():
+def _setup() -> None:
     here = os.path.abspath(os.path.dirname(__file__))
     with open(os.path.join(here, 'CHANGELOG.rst'), encoding='utf_8') as file_:
         changelog = file_.read()
