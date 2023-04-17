@@ -543,16 +543,17 @@ def _get_select_type(
     is_reverse: bool,
 ) -> _SelectType:
     #
-    select_type = _SelectType.USER
-    if not has_preselection:
-        if is_flat:
-            select_type = _SelectType.ALL
-        elif is_reverse:
-            select_type = _SelectType.BOTTOM
-        else:
-            select_type = _SelectType.TOP
-    elif is_flat:
-        select_type = _SelectType.FLAT
+    selections = {
+        (False, False, False): _SelectType.TOP,
+        (False, False, True): _SelectType.BOTTOM,
+        (False, True, False): _SelectType.ALL,
+        (False, True, True): _SelectType.ALL,
+        (True, False, False): _SelectType.USER,
+        (True, False, True): _SelectType.USER,
+        (True, True, False): _SelectType.FLAT,
+        (True, True, True): _SelectType.FLAT,
+    }
+    select_type = selections[(has_preselection, is_flat, is_reverse)]
     return select_type
 
 
