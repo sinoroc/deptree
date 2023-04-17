@@ -6,6 +6,7 @@
 load-plugins =
     pylint.extensions.bad_builtin,
     pylint.extensions.broad_try_clause,
+    pylint.extensions.check_elif,
     pylint.extensions.code_style,
     pylint.extensions.comparetozero,
     pylint.extensions.confusing_elif,
