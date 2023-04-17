@@ -184,23 +184,22 @@ def _display_forward_tree(
         if distribution is None:
             raise UnknownDistributionInChain(requirement, project_key)
         _display_circular(distribution, requirement, depth)
+    elif not distribution:
+        _display_unknown(project_key, requirement, depth)
+    elif distribution.found is not True:
+        _display_missing(project_key, requirement, depth)
     else:
-        if not distribution:
-            _display_unknown(project_key, requirement, depth)
-        elif distribution.found is not True:
-            _display_missing(project_key, requirement, depth)
+        if distribution.conflicts:
+            _display_conflict(distribution, requirement, depth)
         else:
-            if distribution.conflicts:
-                _display_conflict(distribution, requirement, depth)
-            else:
-                _display_good(distribution, requirement, depth)
-            #
-            for dependency in distribution.dependencies.values():
-                _display_forward_tree(
-                    distributions,
-                    dependency,
-                    chain + [project_key],
-                )
+            _display_good(distribution, requirement, depth)
+        #
+        for dependency in distribution.dependencies.values():
+            _display_forward_tree(
+                distributions,
+                dependency,
+                chain + [project_key],
+            )
 
 
 def _display_reverse_tree(
@@ -218,26 +217,25 @@ def _display_reverse_tree(
         if distribution is None:
             raise UnknownDistributionInChain(requirement, project_key)
         _display_circular(distribution, requirement, depth)
+    elif not distribution:
+        _display_unknown(project_key, requirement, depth)
     else:
-        if not distribution:
-            _display_unknown(project_key, requirement, depth)
+        if distribution.found is not True:
+            _display_missing(project_key, requirement, depth)
+        elif distribution.conflicts:
+            _display_conflict(distribution, requirement, depth)
         else:
-            if distribution.found is not True:
-                _display_missing(project_key, requirement, depth)
-            elif distribution.conflicts:
-                _display_conflict(distribution, requirement, depth)
-            else:
-                _display_good(distribution, requirement, depth)
-            #
-            for dependent_key in distribution.dependents:
-                dependent_distribution = distributions[dependent_key]
-                dependencies = dependent_distribution.dependencies
-                dependency_requirement = dependencies[project_key]
-                _display_reverse_tree(
-                    distributions,
-                    dependency_requirement,
-                    chain + [project_key],
-                )
+            _display_good(distribution, requirement, depth)
+        #
+        for dependent_key in distribution.dependents:
+            dependent_distribution = distributions[dependent_key]
+            dependencies = dependent_distribution.dependencies
+            dependency_requirement = dependencies[project_key]
+            _display_reverse_tree(
+                distributions,
+                dependency_requirement,
+                chain + [project_key],
+            )
 
 
 def _display_forward_flat(
@@ -668,11 +666,10 @@ def main(
                 _display_reverse_flat(distributions, requirement)
             else:
                 _display_forward_flat(distributions, requirement)
+        elif is_reverse:
+            _display_reverse_tree(distributions, requirement, [])
         else:
-            if is_reverse:
-                _display_reverse_tree(distributions, requirement, [])
-            else:
-                _display_forward_tree(distributions, requirement, [])
+            _display_forward_tree(distributions, requirement, [])
     return 0
 
 
