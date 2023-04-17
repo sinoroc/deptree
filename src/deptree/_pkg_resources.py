@@ -637,10 +637,10 @@ def _make_preselection(
         requirement = None
         requirement_ = pkg_resources.Requirement.parse(item)
         project_key = typing.cast('ProjectKey', requirement_.key)
-        if is_reverse:
-            requirement = _transform_requirement(project_key, None)
-        else:
-            requirement = _transform_requirement(None, requirement_)
+        requirement = (
+            _transform_requirement(project_key, None)
+            if is_reverse else _transform_requirement(None, requirement_)
+        )
         preselection[project_key] = requirement
     return preselection
 
