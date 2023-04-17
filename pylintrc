@@ -1,0 +1,36 @@
+#
+
+
+[MASTER]
+
+load-plugins =
+    pylint.extensions.bad_builtin,
+    pylint.extensions.broad_try_clause,
+    pylint.extensions.code_style,
+    pylint.extensions.comparetozero,
+    pylint.extensions.confusing_elif,
+    pylint.extensions.consider_refactoring_into_while_condition,
+    pylint.extensions.dict_init_mutate,
+    pylint.extensions.docparams,
+    pylint.extensions.docstyle,
+    pylint.extensions.dunder,
+    pylint.extensions.emptystring,
+    pylint.extensions.eq_without_hash,
+    pylint.extensions.for_any_all,
+    pylint.extensions.magic_value,
+    pylint.extensions.no_self_use,
+    pylint.extensions.overlapping_exceptions,
+    pylint.extensions.private_import,
+    pylint.extensions.redefined_loop_name,
+    pylint.extensions.set_membership,
+    pylint.extensions.typing,
+
+
+[MESSAGES CONTROL]
+
+enable =
+    use-symbolic-message-instead,
+    useless-suppression,
+
+
+# EOF
