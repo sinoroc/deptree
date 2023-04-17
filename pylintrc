@@ -24,6 +24,7 @@ load-plugins =
     pylint.extensions.no_self_use,
     pylint.extensions.overlapping_exceptions,
     pylint.extensions.private_import,
+    pylint.extensions.redefined_variable_type,
     pylint.extensions.redefined_loop_name,
     pylint.extensions.set_membership,
     pylint.extensions.typing,
