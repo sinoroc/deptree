@@ -484,6 +484,7 @@ def _find_orphan_cycles(
     has_maybe_more_orphans = True
     max_detections = 99
     detections_counter = 0
+    # pylint: disable-next=while-used
     while has_maybe_more_orphans and detections_counter < max_detections:
         detections_counter += 1
         has_maybe_more_orphans = False
