@@ -558,7 +558,7 @@ def _get_select_type(
     return select_type
 
 
-def _discover_distributions(
+def _discover_distributions(  # pylint: disable=too-complex
     preselection: Selection,
     is_reverse: bool,
     is_flat: bool,
