@@ -5,6 +5,7 @@
 import argparse
 import typing
 
+from . import _core
 from . import _i18n
 from . import _meta
 from . import _pkg_resources
@@ -12,8 +13,7 @@ from . import _pkg_resources
 _ = _i18n._
 
 
-def main() -> int:
-    """CLI main function."""
+def _build_args_parser() -> argparse.ArgumentParser:
     args_parser = argparse.ArgumentParser(
         allow_abbrev=False,
         description=_meta.get_summary(),
@@ -41,15 +41,44 @@ def main() -> int:
         metavar='project',
         nargs='*',
     )
-    args = args_parser.parse_args()
+    return args_parser
+
+
+def _parse_args() -> typing.Tuple[typing.List[str], bool, bool]:
     #
-    result = _pkg_resources.main(
-        typing.cast(typing.List[str], args.selected_projects),
-        typing.cast(bool, args.reverse),
-        typing.cast(bool, args.flat),
+    args_parser = _build_args_parser()
+    args = args_parser.parse_args()
+    user_selection: typing.List[str] = args.selected_projects
+    is_reverse: bool = args.reverse
+    is_flat: bool = args.reverse
+    #
+    return (user_selection, is_reverse, is_flat)
+
+
+def main() -> int:
+    """CLI main function."""
+    #
+    (user_selection, is_reverse, is_flat) = _parse_args()
+    #
+    (distributions, selection) = _pkg_resources.build_model(
+        user_selection,
+        is_reverse,
+        is_flat,
     )
     #
-    return result
+    for requirement_key in sorted(selection):
+        requirement = selection[requirement_key]
+        if is_flat:
+            if is_reverse:
+                _core.display_reverse_flat(distributions, requirement)
+            else:
+                _core.display_forward_flat(distributions, requirement)
+        elif is_reverse:
+            _core.display_reverse_tree(distributions, requirement, [])
+        else:
+            _core.display_forward_tree(distributions, requirement, [])
+    #
+    return 0
 
 
 # EOF

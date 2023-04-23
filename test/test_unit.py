@@ -12,11 +12,11 @@ class TestSelectType(unittest.TestCase):
         """Set up."""
         self.get_select_type = (
             # pylint: disable=protected-access
-            deptree._pkg_resources._get_select_type
+            deptree._core.get_select_type
         )
         self.select_type = (
             # pylint: disable=protected-access
-            deptree._pkg_resources._SelectType
+            deptree._core.SelectType
         )
 
     def test_select_type_all(self) -> None:
