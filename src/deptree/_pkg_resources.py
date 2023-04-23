@@ -5,305 +5,30 @@
 from __future__ import annotations
 
 import copy
-import dataclasses
-import enum
 import typing
 
 import pkg_resources
 
+from . import _core
+
 if typing.TYPE_CHECKING:
-    import collections.abc
-    #
-    Extra = typing.NewType('Extra', str)
-    Extras = typing.Tuple[Extra, ...]
-    ProjectKey = typing.NewType('ProjectKey', str)
-    ProjectLabel = typing.NewType('ProjectLabel', str)
-    ProjectVersion = typing.NewType('ProjectVersion', str)
-    #
-    Distributions = typing.NewType(
-        'Distributions',
-        typing.Dict[ProjectKey, 'Distribution'],
-    )
-    Requirements = typing.NewType(
-        'Requirements',
-        typing.Dict[ProjectKey, 'Requirement'],
-    )
-    Selection = typing.NewType(
-        'Selection',
-        typing.Dict[ProjectKey, 'Requirement'],
-    )
-
-INDENTATION = 2
-
-
-class DeptreeException(Exception):
-    """Base exception."""
-
-
-class ImpossibleCase(DeptreeException):
-    """Impossible case."""
-
-
-class UnknownDistributionInChain(ImpossibleCase):
-    """Distribution not found although it is in chain."""
-
-
-class InvalidForwardRequirement(ImpossibleCase):
-    """Invalid forward requirement."""
-
-
-class InvalidReverseRequirement(ImpossibleCase):
-    """Invalid reverse requirement."""
-
-
-@dataclasses.dataclass
-class Requirement:
-    """Dependency requirement."""
-
-    dependent_project_key: typing.Optional[ProjectKey]
-    dependency_project_key: typing.Optional[ProjectKey]
-    extras: Extras
-    str_repr: str
-
-
-@dataclasses.dataclass
-class Distribution:
-    """Distribution of a specific project for a specific version."""
-
-    conflicts: typing.List[ProjectKey] = (
-        dataclasses.field(default_factory=list)
-    )
-    dependencies: Requirements = typing.cast(
-        'Requirements',
-        dataclasses.field(default_factory=dict),
-    )
-    dependents: typing.List[ProjectKey] = (
-        dataclasses.field(default_factory=list)
-    )
-    found: bool = False
-    project_name: typing.Optional[ProjectLabel] = None
-    version: typing.Optional[ProjectVersion] = None
-
-
-def _display_conflict(
-    distribution: Distribution,
-    requirement: Requirement,
-    depth: int = 0,
-) -> None:
-    #
-    print(
-        f"{' ' * INDENTATION * depth}"
-        f"{distribution.project_name}=={distribution.version}"
-        f"  # !!! CONFLICT {requirement.str_repr}"
-    )
-
-
-def _display_circular(
-    distribution: Distribution,
-    requirement: Requirement,
-    depth: int = 0,
-) -> None:
-    #
-    print(
-        f"{' ' * INDENTATION * depth}"
-        f"{distribution.project_name}"
-        f"  # !!! CIRCULAR {requirement.str_repr}"
-    )
-
-
-def _display_flat(distribution: Distribution) -> None:
-    #
-    print(f"{distribution.project_name}=={distribution.version}")
-
-
-def _display_flat_dependency(requirement: Requirement) -> None:
-    #
-    print(f"# {requirement.str_repr}")
-
-
-def _display_flat_dependent(
-    distribution: Distribution,
-    requirement: Requirement,
-) -> None:
-    #
-    print(f"# {distribution.project_name}: {requirement.str_repr}")
-
-
-def _display_good(
-    distribution: Distribution,
-    requirement: Requirement,
-    depth: int = 0,
-) -> None:
-    #
-    print(
-        f"{' ' * INDENTATION * depth}"
-        f"{distribution.project_name}=={distribution.version}"
-        f"  # {requirement.str_repr}"
-    )
-
-
-def _display_missing(
-    project_key: ProjectKey,
-    requirement: Requirement,
-    depth: int = 0,
-) -> None:
-    #
-    print(
-        f"{' ' * INDENTATION * depth}"
-        f"{project_key}"
-        f"  # !!! MISSING {requirement.str_repr}"
-    )
-
-
-def _display_unknown(
-    project_key: ProjectKey,
-    requirement: Requirement,
-    depth: int = 0,
-) -> None:
-    #
-    print(
-        f"{' ' * INDENTATION * depth}"
-        f"{project_key}"
-        f"  # !!! UNKNOWN {requirement.str_repr}"
-    )
-
-
-def _display_forward_tree(
-    distributions: Distributions,
-    requirement: Requirement,
-    chain: typing.List[ProjectKey],
-) -> None:
-    #
-    if requirement.dependency_project_key is None:
-        raise InvalidForwardRequirement(requirement)
-    #
-    depth = len(chain)
-    project_key = requirement.dependency_project_key
-    distribution = distributions.get(project_key, None)
-    if project_key in chain:
-        if distribution is None:
-            raise UnknownDistributionInChain(requirement, project_key)
-        _display_circular(distribution, requirement, depth)
-    elif not distribution:
-        _display_unknown(project_key, requirement, depth)
-    elif distribution.found is not True:
-        _display_missing(project_key, requirement, depth)
-    else:
-        if distribution.conflicts:
-            _display_conflict(distribution, requirement, depth)
-        else:
-            _display_good(distribution, requirement, depth)
-        #
-        for dependency in distribution.dependencies.values():
-            _display_forward_tree(
-                distributions,
-                dependency,
-                chain + [project_key],
-            )
-
-
-def _display_reverse_tree(
-    distributions: Distributions,
-    requirement: Requirement,
-    chain: typing.List[ProjectKey],
-) -> None:
-    #
-    depth = len(chain)
-    project_key = requirement.dependent_project_key
-    if project_key is None:
-        raise InvalidReverseRequirement(requirement)
-    distribution = distributions.get(project_key, None)
-    if project_key in chain:
-        if distribution is None:
-            raise UnknownDistributionInChain(requirement, project_key)
-        _display_circular(distribution, requirement, depth)
-    elif not distribution:
-        _display_unknown(project_key, requirement, depth)
-    else:
-        if distribution.found is not True:
-            _display_missing(project_key, requirement, depth)
-        elif distribution.conflicts:
-            _display_conflict(distribution, requirement, depth)
-        else:
-            _display_good(distribution, requirement, depth)
-        #
-        for dependent_key in distribution.dependents:
-            dependent_distribution = distributions[dependent_key]
-            dependencies = dependent_distribution.dependencies
-            dependency_requirement = dependencies[project_key]
-            _display_reverse_tree(
-                distributions,
-                dependency_requirement,
-                chain + [project_key],
-            )
-
-
-def _display_forward_flat(
-    distributions: Distributions,
-    requirement: Requirement,
-) -> None:
-    #
-    project_key = requirement.dependency_project_key
-    if project_key is None:
-        raise InvalidForwardRequirement(requirement)
-    distribution = distributions.get(project_key, None)
-    if not distribution:
-        _display_unknown(project_key, requirement)
-    else:
-        if distribution.found is not True:
-            _display_missing(project_key, requirement)
-        elif distribution.conflicts:
-            _display_conflict(distribution, requirement)
-        else:
-            _display_flat(distribution)
-        #
-        for dependency_requirement in distribution.dependencies.values():
-            _display_flat_dependency(dependency_requirement)
-    #
-    print("")
-
-
-def _display_reverse_flat(
-    distributions: Distributions,
-    requirement: Requirement,
-) -> None:
-    #
-    project_key = requirement.dependent_project_key
-    if project_key is None:
-        raise InvalidReverseRequirement(requirement)
-    distribution = distributions.get(project_key, None)
-    if not distribution:
-        _display_unknown(project_key, requirement)
-    else:
-        for dependent_key in distribution.dependents:
-            dependent_distribution = distributions[dependent_key]
-            dependencies = dependent_distribution.dependencies
-            dependency_requirement = dependencies[project_key]
-            _display_flat_dependent(
-                distributions[dependent_key],
-                dependency_requirement,
-            )
-        #
-        if distribution.found is not True:
-            _display_missing(project_key, requirement)
-        elif distribution.conflicts:
-            _display_conflict(distribution, requirement)
-        else:
-            _display_flat(distribution)
-    #
-    print("")
+    import collections
 
 
 def _transform_requirement(
-    dependent_project_key: typing.Optional[ProjectKey],
+    dependent_project_key: typing.Optional[_core.ProjectKey],
     requirement_: typing.Optional[pkg_resources.Requirement],
-) -> Requirement:
+) -> _core.Requirement:
     #
     requirement_key = (
-        typing.cast('ProjectKey', requirement_.key) if requirement_ else None
+        typing.cast('_core.ProjectKey', requirement_.key)
+        if requirement_ else None
     )
-    extras = typing.cast('Extras', requirement_.extras) if requirement_ else ()
-    requirement = Requirement(
+    extras = (
+        typing.cast('_core.Extras', requirement_.extras)  #
+        if requirement_ else ()
+    )
+    requirement = _core.Requirement(
         dependent_project_key=dependent_project_key,
         dependency_project_key=requirement_key,
         extras=extras,
@@ -313,9 +38,9 @@ def _transform_requirement(
 
 
 def _make_requirement(
-    project_key: ProjectKey,
+    project_key: _core.ProjectKey,
     is_reverse: bool,
-) -> Requirement:
+) -> _core.Requirement:
     #
     requirement = None
     if is_reverse:
@@ -327,15 +52,15 @@ def _make_requirement(
 
 
 def _select_flat_forward(
-    distributions: Distributions,
-    requirement: Requirement,
-    selection: Selection,
-    chain: typing.List[ProjectKey],
+    distributions: _core.Distributions,
+    requirement: _core.Requirement,
+    selection: _core.Selection,
+    chain: typing.List[_core.ProjectKey],
 ) -> None:
     #
     project_key = requirement.dependency_project_key
     if project_key is None:
-        raise InvalidForwardRequirement(requirement)
+        raise _core.InvalidForwardRequirement(requirement)
     distribution = distributions.get(project_key, None)
     #
     if project_key not in selection:
@@ -353,15 +78,15 @@ def _select_flat_forward(
 
 
 def _select_flat_reverse(
-    distributions: Distributions,
-    requirement: Requirement,
-    selection: Selection,
-    chain: typing.List[ProjectKey],
+    distributions: _core.Distributions,
+    requirement: _core.Requirement,
+    selection: _core.Selection,
+    chain: typing.List[_core.ProjectKey],
 ) -> None:
     #
     project_key = requirement.dependent_project_key
     if project_key is None:
-        raise InvalidReverseRequirement(requirement)
+        raise _core.InvalidReverseRequirement(requirement)
     distribution = distributions.get(project_key, None)
     #
     if project_key not in selection:
@@ -382,10 +107,10 @@ def _select_flat_reverse(
 
 
 def _select_flat(
-    distributions: Distributions,
+    distributions: _core.Distributions,
     is_reverse: bool,
-    preselection: Selection,
-    selection: Selection,
+    preselection: _core.Selection,
+    selection: _core.Selection,
 ) -> None:
     #
     for project_key in preselection:
@@ -407,15 +132,15 @@ def _select_flat(
 
 
 def _visit_forward(
-    distributions: Distributions,
-    requirement: Requirement,
-    visited: typing.List[ProjectKey],
-    chain: typing.List[ProjectKey],
+    distributions: _core.Distributions,
+    requirement: _core.Requirement,
+    visited: typing.List[_core.ProjectKey],
+    chain: typing.List[_core.ProjectKey],
 ) -> None:
     #
     distribution_key = requirement.dependency_project_key
     if distribution_key is None:
-        raise InvalidForwardRequirement(requirement)
+        raise _core.InvalidForwardRequirement(requirement)
     if distribution_key not in visited:
         visited.append(distribution_key)
     if distribution_key not in chain:
@@ -432,15 +157,15 @@ def _visit_forward(
 
 
 def _visit_reverse(
-    distributions: Distributions,
-    requirement: Requirement,
-    visited: typing.List[ProjectKey],
-    chain: typing.List[ProjectKey],
+    distributions: _core.Distributions,
+    requirement: _core.Requirement,
+    visited: typing.List[_core.ProjectKey],
+    chain: typing.List[_core.ProjectKey],
 ) -> None:
     #
     distribution_key = requirement.dependent_project_key
     if distribution_key is None:
-        raise InvalidReverseRequirement(requirement)
+        raise _core.InvalidReverseRequirement(requirement)
     if distribution_key not in visited:
         visited.append(distribution_key)
     if distribution_key not in chain:
@@ -459,12 +184,12 @@ def _visit_reverse(
 
 
 def _find_orphan_cycles(
-    distributions: Distributions,
-    selection: Selection,
+    distributions: _core.Distributions,
+    selection: _core.Selection,
     is_reverse: bool,
 ) -> None:
     #
-    visited: typing.List[ProjectKey] = []
+    visited: typing.List[_core.ProjectKey] = []
     for distribution_key in selection:
         if is_reverse:
             _visit_reverse(
@@ -501,8 +226,8 @@ def _find_orphan_cycles(
 
 
 def _select_bottom(
-    distributions: Distributions,
-    selection: Selection,
+    distributions: _core.Distributions,
+    selection: _core.Selection,
 ) -> None:
     #
     for distribution_key in distributions:
@@ -516,8 +241,8 @@ def _select_bottom(
 
 
 def _select_top(
-    distributions: Distributions,
-    selection: Selection,
+    distributions: _core.Distributions,
+    selection: _core.Selection,
 ) -> None:
     #
     for distribution_key in distributions:
@@ -530,57 +255,33 @@ def _select_top(
     _find_orphan_cycles(distributions, selection, False)
 
 
-class _SelectType(enum.Enum):
-    ALL = enum.auto()
-    BOTTOM = enum.auto()
-    FLAT = enum.auto()
-    USER = enum.auto()
-    TOP = enum.auto()
-
-
-def _get_select_type(
-    has_preselection: bool,
-    is_flat: bool,
-    is_reverse: bool,
-) -> _SelectType:
-    #
-    selections = {
-        (False, False, False): _SelectType.TOP,
-        (False, False, True): _SelectType.BOTTOM,
-        (False, True, False): _SelectType.ALL,
-        (False, True, True): _SelectType.ALL,
-        (True, False, False): _SelectType.USER,
-        (True, False, True): _SelectType.USER,
-        (True, True, False): _SelectType.FLAT,
-        (True, True, True): _SelectType.FLAT,
-    }
-    select_type = selections[(has_preselection, is_flat, is_reverse)]
-    return select_type
-
-
 def _discover_distributions(  # pylint: disable=too-complex
-    preselection: Selection,
+    preselection: _core.Selection,
     is_reverse: bool,
     is_flat: bool,
-) -> typing.Tuple[Distributions, Selection]:
+) -> typing.Tuple[_core.Distributions, _core.Selection]:
     #
-    distributions = typing.cast('Distributions', {})
+    distributions = typing.cast('_core.Distributions', {})
     selection = copy.deepcopy(preselection)
     #
-    select_type = _get_select_type(bool(preselection), is_flat, is_reverse)
+    select_type = _core.get_select_type(
+        bool(preselection),
+        is_flat,
+        is_reverse,
+    )
     #
     for distribution_ in list(pkg_resources.working_set):
-        project_key = typing.cast('ProjectKey', distribution_.key)
+        project_key = typing.cast('_core.ProjectKey', distribution_.key)
         distribution = distributions.setdefault(
             project_key,
-            Distribution(),
+            _core.Distribution(),
         )
         distribution.found = True
         distribution.project_name = (
-            typing.cast('ProjectLabel', distribution_.project_name)
+            typing.cast('_core.ProjectLabel', distribution_.project_name)
         )
         distribution.version = (
-            typing.cast('ProjectVersion', distribution_.version)
+            typing.cast('_core.ProjectVersion', distribution_.version)
         )
         #
         extras = (
@@ -588,17 +289,20 @@ def _discover_distributions(  # pylint: disable=too-complex
             if project_key in preselection else ()
         )
         #
-        if select_type == _SelectType.ALL and project_key not in selection:
+        if (
+            select_type == _core.SelectType.ALL
+            and project_key not in selection
+        ):
             selection[project_key] = _make_requirement(project_key, is_reverse)
         #
         for requirement_ in distribution_.requires(extras=extras):
             requirement = _transform_requirement(project_key, requirement_)
             dependency_key = requirement.dependency_project_key
             if dependency_key is None:
-                raise InvalidForwardRequirement(requirement)
+                raise _core.InvalidForwardRequirement(requirement)
             dependency = distributions.setdefault(
                 dependency_key,
-                Distribution(),
+                _core.Distribution(),
             )
             dependency.dependents.append(project_key)
             distribution.dependencies[dependency_key] = requirement
@@ -611,7 +315,7 @@ def _discover_distributions(  # pylint: disable=too-complex
                 pass
             #
             if (  #
-                    select_type == _SelectType.ALL
+                    select_type == _core.SelectType.ALL
                     and dependency_key not in selection
             ):
                 selection[dependency_key] = _make_requirement(
@@ -619,11 +323,11 @@ def _discover_distributions(  # pylint: disable=too-complex
                     is_reverse,
                 )
     #
-    if select_type == _SelectType.FLAT:
+    if select_type == _core.SelectType.FLAT:
         _select_flat(distributions, is_reverse, preselection, selection)
-    elif select_type == _SelectType.BOTTOM:
+    elif select_type == _core.SelectType.BOTTOM:
         _select_bottom(distributions, selection)
-    elif select_type == _SelectType.TOP:
+    elif select_type == _core.SelectType.TOP:
         _select_top(distributions, selection)
     #
     return (distributions, selection)
@@ -632,13 +336,13 @@ def _discover_distributions(  # pylint: disable=too-complex
 def _make_preselection(
     user_selection: collections.abc.Iterable[str],
     is_reverse: bool,
-) -> Selection:
+) -> _core.Selection:
     #
-    preselection = typing.cast('Selection', {})
+    preselection = typing.cast('_core.Selection', {})
     for item in user_selection:
         requirement = None
         requirement_ = pkg_resources.Requirement.parse(item)
-        project_key = typing.cast('ProjectKey', requirement_.key)
+        project_key = typing.cast('_core.ProjectKey', requirement_.key)
         requirement = (
             _transform_requirement(project_key, None)
             if is_reverse else _transform_requirement(None, requirement_)
@@ -647,11 +351,11 @@ def _make_preselection(
     return preselection
 
 
-def main(
+def build_model(
     user_selection: collections.abc.Iterable[str],
     is_reverse: bool,
     is_flat: bool,
-) -> int:
+) -> typing.Tuple[_core.Distributions, _core.Selection]:
     """CLI main function."""
     #
     preselection = _make_preselection(user_selection, is_reverse)
@@ -660,19 +364,7 @@ def main(
         is_reverse,
         is_flat,
     )
-    #
-    for requirement_key in sorted(selection):
-        requirement = selection[requirement_key]
-        if is_flat:
-            if is_reverse:
-                _display_reverse_flat(distributions, requirement)
-            else:
-                _display_forward_flat(distributions, requirement)
-        elif is_reverse:
-            _display_reverse_tree(distributions, requirement, [])
-        else:
-            _display_forward_tree(distributions, requirement, [])
-    return 0
+    return (distributions, selection)
 
 
 # EOF
